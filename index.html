@@ -7,6 +7,8 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+    <!-- Monetag Ad Script -->
+    <script src='//libtl.com/sdk.js' data-zone='10005454' data-sdk='show_10005454'></script>
     <style>
         /* Global Styles */
         :root {
@@ -78,7 +80,19 @@
             justify-content: space-between;
         }
 
-        /* Stats Grid */
+        /* Watch Ads Section */
+        .watch-ads-section {
+            text-align: center;
+        }
+
+        .section-title {
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--text-primary);
+            text-align: center;
+        }
+
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -161,7 +175,7 @@
         .task-checkbox {
             width: 20px;
             height: 20px;
-            border-radius: 50%;
+            border-radius: 4px;
             border: 2px solid var(--accent-color);
             margin-right: 15px;
             display: flex;
@@ -183,6 +197,23 @@
             font-size: 12px;
             color: var(--text-secondary);
             margin-top: 3px;
+        }
+
+        /* No Ads Message */
+        .no-ads-message {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 15px 0;
+            color: var(--text-secondary);
+        }
+
+        .no-ads-checkbox {
+            width: 18px;
+            height: 18px;
+            border-radius: 4px;
+            border: 2px solid var(--text-secondary);
+            margin-right: 10px;
         }
 
         /* Form Styles */
@@ -294,6 +325,7 @@
             border-radius: 10px;
             padding: 5px;
             margin: 20px 0;
+            overflow-x: auto;
         }
 
         .nav-tab {
@@ -303,11 +335,54 @@
             border-radius: 8px;
             cursor: pointer;
             transition: all 0.3s ease;
+            min-width: 80px;
         }
 
         .nav-tab.active {
             background-color: var(--accent-color);
             color: white;
+        }
+
+        /* Profile Section */
+        .profile-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background-color: var(--accent-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: bold;
+            margin-right: 20px;
+        }
+
+        .profile-info {
+            flex: 1;
+        }
+
+        .profile-name {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .profile-id {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .profile-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin: 20px 0;
         }
 
         /* Admin Panel */
@@ -355,10 +430,15 @@
             color: white;
             cursor: pointer;
             margin-right: 5px;
+            font-size: 12px;
         }
 
         .action-btn.delete {
             background-color: #ff4757;
+        }
+
+        .action-btn.approve {
+            background-color: var(--accent-secondary);
         }
 
         /* Modal */
@@ -382,6 +462,8 @@
             max-width: 500px;
             padding: 25px;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            max-height: 90vh;
+            overflow-y: auto;
         }
 
         .modal-header {
@@ -456,6 +538,10 @@
                 grid-template-columns: 1fr;
                 gap: 10px;
             }
+            
+            .profile-stats {
+                grid-template-columns: 1fr;
+            }
         }
 
         /* Utility Classes */
@@ -486,6 +572,18 @@
         .hidden {
             display: none;
         }
+        
+        .flex {
+            display: flex;
+        }
+        
+        .justify-between {
+            justify-content: space-between;
+        }
+        
+        .w-full {
+            width: 100%;
+        }
     </style>
 </head>
 <body>
@@ -501,6 +599,7 @@
             <!-- Navigation Tabs -->
             <div class="nav-tabs">
                 <div class="nav-tab active" data-tab="dashboard">Dashboard</div>
+                <div class="nav-tab" data-tab="profile">Profile</div>
                 <div class="nav-tab" data-tab="withdraw">Withdraw</div>
                 <div class="nav-tab" data-tab="referral">Referral</div>
                 <div class="nav-tab" data-tab="leaderboard">Leaderboard</div>
@@ -508,16 +607,17 @@
 
             <!-- Dashboard Tab -->
             <div id="dashboardTab" class="tab-content">
+                <!-- Watch Ads & Earn Section -->
                 <div class="card">
-                    <div class="card-title">Watch Ads & Earn</div>
+                    <div class="section-title">Watch Ads & Earn</div>
                     
                     <div class="stats-grid">
                         <div class="stat-item">
-                            <div class="stat-value" id="totalWatched">0</div>
+                            <div class="stat-value" id="totalWatched">3</div>
                             <div class="stat-label">Total Watched</div>
                         </div>
                         <div class="stat-item">
-                            <div class="stat-value" id="leftThisHour">5</div>
+                            <div class="stat-value" id="leftThisHour">0</div>
                             <div class="stat-label">Left This Hour</div>
                         </div>
                         <div class="stat-item">
@@ -527,70 +627,62 @@
                     </div>
 
                     <button class="btn" id="watchAdBtn">Watch Ad</button>
-                    <div class="text-center mt-10" id="noAdsMessage">
+                    
+                    <!-- No Ads Message -->
+                    <div class="no-ads-message" id="noAdsMessage">
+                        <div class="no-ads-checkbox"></div>
                         <span>No ads left This Hour</span>
                     </div>
                 </div>
 
+                <!-- Available Tasks Section -->
                 <div class="card">
-                    <div class="card-title">Available Tasks</div>
+                    <div class="section-title">Available Tasks</div>
                     
-                    <div class="task-list">
-                        <div class="task-item">
-                            <div class="task-info">
-                                <div class="task-checkbox completed">✓</div>
-                                <div>
-                                    <div class="task-name">Join RichAirDrop</div>
-                                    <div class="task-progress">3/3</div>
-                                </div>
-                            </div>
-                            <button class="btn btn-secondary">Claim</button>
-                        </div>
-                        
-                        <div class="task-item">
-                            <div class="task-info">
-                                <div class="task-checkbox completed">✓</div>
-                                <div>
-                                    <div class="task-name">Join Profit Max</div>
-                                    <div class="task-progress">3/3</div>
-                                </div>
-                            </div>
-                            <button class="btn btn-secondary">Claim</button>
-                        </div>
-                        
-                        <div class="task-item">
-                            <div class="task-info">
-                                <div class="task-checkbox completed">✓</div>
-                                <div>
-                                    <div class="task-name">Follow Telegram</div>
-                                    <div class="task-progress">3/3</div>
-                                </div>
-                            </div>
-                            <button class="btn btn-secondary">Claim</button>
-                        </div>
-                        
-                        <div class="task-item">
-                            <div class="task-info">
-                                <div class="task-checkbox completed">✓</div>
-                                <div>
-                                    <div class="task-name">Invite a friend</div>
-                                    <div class="task-progress">5/5</div>
-                                </div>
-                            </div>
-                            <button class="btn btn-secondary">Claim</button>
-                        </div>
-                        
-                        <div class="task-item">
-                            <div class="task-info">
-                                <div class="task-checkbox completed">✓</div>
-                                <div>
-                                    <div class="task-name">Visit Website</div>
-                                    <div class="task-progress">3/3</div>
-                                </div>
-                            </div>
-                            <button class="btn btn-secondary">Claim</button>
+                    <div class="task-list" id="tasksList">
+                        <!-- Tasks will be loaded from Firebase -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Tab -->
+            <div id="profileTab" class="tab-content hidden">
+                <div class="card">
+                    <div class="profile-header">
+                        <div class="profile-avatar" id="profileAvatar">U</div>
+                        <div class="profile-info">
+                            <div class="profile-name" id="profileName">User</div>
+                            <div class="profile-id" id="profileId">ID: Loading...</div>
                         </div>
                     </div>
+                    
+                    <div class="profile-stats">
+                        <div class="stat-item">
+                            <div class="stat-value" id="todayIncome">0</div>
+                            <div class="stat-label">Today Income</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="allTimeIncome">0</div>
+                            <div class="stat-label">All Time Income</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="todayAds">0</div>
+                            <div class="stat-label">Ads Today</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="allTimeAds">0</div>
+                            <div class="stat-label">All Time Ads</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-title">Account Details</div>
+                    <div class="form-group">
+                        <label class="form-label">Username</label>
+                        <input type="text" class="form-input" id="usernameInput" placeholder="Enter your username">
+                    </div>
+                    <button class="btn" id="updateProfileBtn">Update Profile</button>
                 </div>
             </div>
 
@@ -628,7 +720,7 @@
                     <div class="card-title">Your Referral Link</div>
                     
                     <div class="referral-link" id="referralLink">
-                        https://t.me/RichAirDrop?start=8054...
+                        Loading...
                     </div>
                     
                     <button class="btn" id="copyReferralBtn">Copy Link</button>
@@ -649,7 +741,7 @@
                         </div>
                     </div>
                     
-                    <p class="text-center mt-10">No referrals yet. Share your link to start earning!</p>
+                    <p class="text-center mt-10" id="referralMessage">No referrals yet. Share your link to start earning!</p>
                 </div>
 
                 <div class="card">
@@ -701,14 +793,45 @@
 
             <!-- Admin Navigation Tabs -->
             <div class="nav-tabs">
-                <div class="nav-tab active" data-admin-tab="ads">Ads Management</div>
+                <div class="nav-tab active" data-admin-tab="dashboard">Dashboard</div>
+                <div class="nav-tab" data-admin-tab="ads">Ads Management</div>
+                <div class="nav-tab" data-admin-tab="tasks">Tasks Management</div>
                 <div class="nav-tab" data-admin-tab="withdrawals">Withdrawals</div>
                 <div class="nav-tab" data-admin-tab="users">User Management</div>
                 <div class="nav-tab" data-admin-tab="settings">System Settings</div>
             </div>
 
+            <!-- Admin Dashboard Tab -->
+            <div id="adminDashboardTab" class="admin-tab-content">
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-value" id="adminTotalUsers">0</div>
+                        <div class="stat-label">Total Users</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="adminTotalWithdrawals">0</div>
+                        <div class="stat-label">Total Withdrawals</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="adminPendingWithdrawals">0</div>
+                        <div class="stat-label">Pending Withdrawals</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="adminTotalEarned">0</div>
+                        <div class="stat-label">Total Earned (SHIB)</div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-title">Recent Activity</div>
+                    <div id="adminRecentActivity">
+                        <p class="text-center">Loading recent activity...</p>
+                    </div>
+                </div>
+            </div>
+
             <!-- Ads Management Tab -->
-            <div id="adsManagementTab" class="admin-tab-content">
+            <div id="adsManagementTab" class="admin-tab-content hidden">
                 <div class="card">
                     <div class="card-title">Ads Management
                         <button class="btn" id="addAdBtn" style="width: auto; padding: 8px 15px;">Add New Ad</button>
@@ -731,6 +854,30 @@
                 </div>
             </div>
 
+            <!-- Tasks Management Tab -->
+            <div id="tasksManagementTab" class="admin-tab-content hidden">
+                <div class="card">
+                    <div class="card-title">Tasks Management
+                        <button class="btn" id="addTaskBtn" style="width: auto; padding: 8px 15px;">Add New Task</button>
+                    </div>
+                    
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Reward</th>
+                                <th>Required</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tasksTableBody">
+                            <!-- Tasks will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
             <!-- Withdrawals Management Tab -->
             <div id="withdrawalsManagementTab" class="admin-tab-content hidden">
                 <div class="card">
@@ -740,6 +887,7 @@
                         <thead>
                             <tr>
                                 <th>User ID</th>
+                                <th>Username</th>
                                 <th>Amount</th>
                                 <th>Address</th>
                                 <th>Date</th>
@@ -759,6 +907,7 @@
                         <thead>
                             <tr>
                                 <th>User ID</th>
+                                <th>Username</th>
                                 <th>Amount</th>
                                 <th>Address</th>
                                 <th>Status</th>
@@ -780,6 +929,7 @@
                     <table class="admin-table">
                         <thead>
                             <tr>
+                                <th>Username</th>
                                 <th>User ID</th>
                                 <th>Balance</th>
                                 <th>Referrals</th>
@@ -885,6 +1035,73 @@
         </div>
     </div>
 
+    <!-- Add Task Modal -->
+    <div id="addTaskModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Add New Task</div>
+                <button class="close-modal">&times;</button>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Task Name</label>
+                <input type="text" class="form-input" id="taskName" placeholder="Enter task name">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Task Description</label>
+                <textarea class="form-input" id="taskDescription" placeholder="Enter task description" rows="3"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Reward Amount (SHIB)</label>
+                <input type="number" class="form-input" id="taskReward" value="50">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Required Completions</label>
+                <input type="number" class="form-input" id="taskRequired" value="3">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Task Type</label>
+                <select class="form-input" id="taskType">
+                    <option value="join">Join Channel/Group</option>
+                    <option value="follow">Follow Account</option>
+                    <option value="visit">Visit Website</option>
+                    <option value="invite">Invite Friends</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+            
+            <button class="btn" id="saveTaskBtn">Save Task</button>
+        </div>
+    </div>
+
+    <!-- Ad Watch Modal -->
+    <div id="adWatchModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Watching Ad</div>
+                <button class="close-modal">&times;</button>
+            </div>
+            
+            <div class="text-center" style="padding: 40px 0;">
+                <div class="spinner"></div>
+                <p class="mt-20">Please wait while the ad loads...</p>
+            </div>
+            
+            <div id="adContainer" style="display: none;">
+                <!-- Ad will be displayed here -->
+            </div>
+            
+            <div class="text-center mt-20" id="adCompletionMessage" style="display: none;">
+                <p>Ad completed! You earned <strong>20 SHIB</strong>.</p>
+                <button class="btn mt-20" id="closeAdBtn">Close</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Toast Notification -->
     <div id="toast" class="toast"></div>
 
@@ -908,12 +1125,18 @@
         let currentUser = null;
         let userData = null;
         let isAdmin = false;
+        let tasks = [];
+        let ads = [];
+        let allUsers = [];
+        let pendingWithdrawals = [];
 
         // DOM Elements
         const userPanel = document.getElementById('userPanel');
         const adminPanel = document.getElementById('adminPanel');
         const adminLoginModal = document.getElementById('adminLoginModal');
         const addAdModal = document.getElementById('addAdModal');
+        const addTaskModal = document.getElementById('addTaskModal');
+        const adWatchModal = document.getElementById('adWatchModal');
         const toast = document.getElementById('toast');
 
         // Check if we're in Telegram or browser
@@ -948,6 +1171,9 @@
             
             // Initialize event listeners
             initializeEventListeners();
+            
+            // Load initial data
+            loadInitialData();
         }
 
         // Initialize Telegram user
@@ -955,13 +1181,68 @@
             // In a real implementation, we would use Telegram WebApp initData
             // For this demo, we'll create a mock user
             const mockUser = {
-                uid: 'telegram_user_12345',
+                uid: 'telegram_user_' + Math.random().toString(36).substr(2, 9),
                 displayName: 'Telegram User',
                 photoURL: ''
             };
             
             currentUser = mockUser;
-            loadUserData();
+            checkUserExists(mockUser.uid);
+        }
+
+        // Check if user exists in Firebase, if not create them
+        function checkUserExists(userId) {
+            db.collection('users').doc(userId).get()
+                .then((doc) => {
+                    if (doc.exists) {
+                        // User exists, load their data
+                        userData = doc.data();
+                        updateUserUI();
+                        loadUserTasks();
+                    } else {
+                        // User doesn't exist, create them
+                        createNewUser(userId);
+                    }
+                })
+                .catch((error) => {
+                    console.error("Error checking user:", error);
+                    // Create user anyway as fallback
+                    createNewUser(userId);
+                });
+        }
+
+        // Create a new user in Firebase
+        function createNewUser(userId) {
+            const userRef = db.collection('users').doc(userId);
+            
+            userData = {
+                uid: userId,
+                username: 'User' + Math.floor(Math.random() * 10000),
+                balance: 0,
+                totalEarned: 0,
+                todayEarned: 0,
+                totalAdsWatched: 0,
+                todayAdsWatched: 0,
+                adsLeftThisHour: 5,
+                lastAdWatch: null,
+                totalReferrals: 0,
+                referralEarnings: 0,
+                totalWithdrawn: 0,
+                withdrawalHistory: [],
+                tasksCompleted: {},
+                joinedDate: new Date().toISOString(),
+                lastActive: new Date().toISOString()
+            };
+            
+            userRef.set(userData)
+                .then(() => {
+                    console.log("New user created:", userId);
+                    updateUserUI();
+                    loadUserTasks();
+                })
+                .catch((error) => {
+                    console.error("Error creating user:", error);
+                });
         }
 
         // Show admin login modal
@@ -1019,6 +1300,10 @@
                 loadLeaderboardData();
             } else if (tabName === 'withdraw') {
                 loadWithdrawalHistory();
+            } else if (tabName === 'profile') {
+                loadProfileData();
+            } else if (tabName === 'referral') {
+                loadReferralData();
             }
         }
 
@@ -1047,6 +1332,10 @@
                 loadWithdrawalsData();
             } else if (tabName === 'users') {
                 loadUsersData();
+            } else if (tabName === 'tasks') {
+                loadTasksData();
+            } else if (tabName === 'dashboard') {
+                loadAdminDashboard();
             }
         }
 
@@ -1057,6 +1346,8 @@
             document.getElementById('withdrawBtn').addEventListener('click', withdrawSHIB);
             document.getElementById('copyReferralBtn').addEventListener('click', copyReferralLink);
             document.getElementById('shareReferralBtn').addEventListener('click', shareReferralLink);
+            document.getElementById('updateProfileBtn').addEventListener('click', updateProfile);
+            document.getElementById('closeAdBtn').addEventListener('click', closeAdModal);
             
             // Admin panel events
             document.getElementById('adminLoginBtn').addEventListener('click', adminLogin);
@@ -1064,6 +1355,8 @@
             document.getElementById('switchToUserBtn').addEventListener('click', switchToUserView);
             document.getElementById('addAdBtn').addEventListener('click', showAddAdModal);
             document.getElementById('saveAdBtn').addEventListener('click', saveAd);
+            document.getElementById('addTaskBtn').addEventListener('click', showAddTaskModal);
+            document.getElementById('saveTaskBtn').addEventListener('click', saveTask);
             document.getElementById('saveSettingsBtn').addEventListener('click', saveSettings);
             
             // Modal close events
@@ -1074,6 +1367,133 @@
             });
         }
 
+        // Load initial data
+        function loadInitialData() {
+            loadTasks();
+            loadAds();
+            
+            // If admin, load admin data
+            if (isAdmin) {
+                loadUsersData();
+                loadWithdrawalsData();
+                loadAdminDashboard();
+            }
+        }
+
+        // Load tasks from Firebase
+        function loadTasks() {
+            db.collection('tasks').where('active', '==', true).get()
+                .then((querySnapshot) => {
+                    tasks = [];
+                    querySnapshot.forEach((doc) => {
+                        tasks.push({ id: doc.id, ...doc.data() });
+                    });
+                    updateTasksUI();
+                })
+                .catch((error) => {
+                    console.error("Error loading tasks:", error);
+                });
+        }
+
+        // Load ads from Firebase
+        function loadAds() {
+            db.collection('ads').where('active', '==', true).get()
+                .then((querySnapshot) => {
+                    ads = [];
+                    querySnapshot.forEach((doc) => {
+                        ads.push({ id: doc.id, ...doc.data() });
+                    });
+                })
+                .catch((error) => {
+                    console.error("Error loading ads:", error);
+                });
+        }
+
+        // Update tasks UI
+        function updateTasksUI() {
+            const tasksList = document.getElementById('tasksList');
+            
+            if (tasks.length === 0) {
+                tasksList.innerHTML = '<p class="text-center">No tasks available at the moment.</p>';
+                return;
+            }
+            
+            let tasksHTML = '';
+            tasks.forEach(task => {
+                const completed = userData.tasksCompleted && userData.tasksCompleted[task.id] || 0;
+                const canClaim = completed >= task.required;
+                
+                tasksHTML += `
+                    <div class="task-item">
+                        <div class="task-info">
+                            <div class="task-checkbox ${completed >= task.required ? 'completed' : ''}">
+                                ${completed >= task.required ? '✓' : ''}
+                            </div>
+                            <div>
+                                <div class="task-name">${task.name}</div>
+                                <div class="task-progress">${completed}/${task.required}</div>
+                            </div>
+                        </div>
+                        <button class="btn btn-secondary" style="width: auto; padding: 8px 15px;" 
+                                ${!canClaim ? 'disabled' : ''} data-task-id="${task.id}">
+                            ${canClaim ? 'Claim' : 'In Progress'}
+                        </button>
+                    </div>
+                `;
+            });
+            
+            tasksList.innerHTML = tasksHTML;
+            
+            // Add event listeners to claim buttons
+            document.querySelectorAll('[data-task-id]').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const taskId = e.target.getAttribute('data-task-id');
+                    claimTask(taskId);
+                });
+            });
+        }
+
+        // Load user tasks progress
+        function loadUserTasks() {
+            if (!userData || !userData.tasksCompleted) return;
+            updateTasksUI();
+        }
+
+        // Claim task reward
+        function claimTask(taskId) {
+            const task = tasks.find(t => t.id === taskId);
+            if (!task) return;
+            
+            const userRef = db.collection('users').doc(userData.uid);
+            
+            // Update user balance
+            const newBalance = userData.balance + task.reward;
+            const newTotalEarned = userData.totalEarned + task.reward;
+            const newTodayEarned = userData.todayEarned + task.reward;
+            
+            userRef.update({
+                balance: newBalance,
+                totalEarned: newTotalEarned,
+                todayEarned: newTodayEarned
+            })
+            .then(() => {
+                // Update local data
+                userData.balance = newBalance;
+                userData.totalEarned = newTotalEarned;
+                userData.todayEarned = newTodayEarned;
+                
+                // Update UI
+                updateUserUI();
+                updateTasksUI();
+                
+                showToast(`Task completed! You earned ${task.reward} SHIB.`);
+            })
+            .catch((error) => {
+                console.error("Error claiming task:", error);
+                showToast("Error claiming task. Please try again.");
+            });
+        }
+
         // Watch ad function
         function watchAd() {
             if (userData.adsLeftThisHour <= 0) {
@@ -1081,38 +1501,171 @@
                 return;
             }
             
-            // Show loading state
-            const watchBtn = document.getElementById('watchAdBtn');
-            const originalText = watchBtn.textContent;
-            watchBtn.innerHTML = '<span class="spinner"></span> Watching...';
-            watchBtn.disabled = true;
+            // Show ad modal
+            adWatchModal.style.display = 'flex';
             
-            // Simulate ad watching
+            // Show loading state
+            document.getElementById('adContainer').style.display = 'none';
+            document.getElementById('adCompletionMessage').style.display = 'none';
+            
+            // Simulate ad loading
             setTimeout(() => {
-                // Update user data
-                userData.balance += 20;
-                userData.totalAdsWatched += 1;
-                userData.adsLeftThisHour -= 1;
+                // Trigger Monetag ad
+                if (typeof show_10005454 === 'function') {
+                    show_10005454({ 
+                        type: 'inApp', 
+                        inAppSettings: { 
+                            frequency: 2, 
+                            capping: 0.1, 
+                            interval: 30, 
+                            timeout: 5, 
+                            everyPage: false 
+                        } 
+                    });
+                }
+                
+                // Simulate ad completion after 5 seconds
+                setTimeout(() => {
+                    completeAdWatch();
+                }, 5000);
+                
+            }, 2000);
+        }
+
+        // Complete ad watch and reward user
+        function completeAdWatch() {
+            const userRef = db.collection('users').doc(userData.uid);
+            const reward = 20; // 20 SHIB per ad
+            
+            // Update user data
+            const newBalance = userData.balance + reward;
+            const newTotalEarned = userData.totalEarned + reward;
+            const newTodayEarned = userData.todayEarned + reward;
+            const newTotalAdsWatched = userData.totalAdsWatched + 1;
+            const newTodayAdsWatched = userData.todayAdsWatched + 1;
+            const newAdsLeftThisHour = userData.adsLeftThisHour - 1;
+            
+            userRef.update({
+                balance: newBalance,
+                totalEarned: newTotalEarned,
+                todayEarned: newTodayEarned,
+                totalAdsWatched: newTotalAdsWatched,
+                todayAdsWatched: newTodayAdsWatched,
+                adsLeftThisHour: newAdsLeftThisHour,
+                lastAdWatch: new Date().toISOString(),
+                lastActive: new Date().toISOString()
+            })
+            .then(() => {
+                // Update local data
+                userData.balance = newBalance;
+                userData.totalEarned = newTotalEarned;
+                userData.todayEarned = newTodayEarned;
+                userData.totalAdsWatched = newTotalAdsWatched;
+                userData.todayAdsWatched = newTodayAdsWatched;
+                userData.adsLeftThisHour = newAdsLeftThisHour;
                 
                 // Update UI
                 updateUserUI();
                 
-                // Show success message
+                // Show completion message
+                document.getElementById('adCompletionMessage').style.display = 'block';
+                
                 showToast('Ad watched successfully! 20 SHIB added to your balance.');
-                
-                // Reset button
-                watchBtn.textContent = originalText;
-                watchBtn.disabled = false;
-                
-                // Save user data to Firebase in a real implementation
-                // saveUserData();
-            }, 3000);
+            })
+            .catch((error) => {
+                console.error("Error updating user after ad watch:", error);
+                showToast("Error processing ad reward. Please try again.");
+            });
+        }
+
+        // Close ad modal
+        function closeAdModal() {
+            adWatchModal.style.display = 'none';
+        }
+
+        // Update user UI
+        function updateUserUI() {
+            if (!userData) return;
+            
+            document.getElementById('totalWatched').textContent = userData.totalAdsWatched || 0;
+            document.getElementById('leftThisHour').textContent = userData.adsLeftThisHour || 0;
+            document.getElementById('totalReferrals').textContent = userData.totalReferrals || 0;
+            document.getElementById('referralEarnings').textContent = userData.referralEarnings || 0;
+            
+            // Show/hide no ads message
+            if (userData.adsLeftThisHour <= 0) {
+                document.getElementById('noAdsMessage').classList.remove('hidden');
+                document.getElementById('watchAdBtn').disabled = true;
+            } else {
+                document.getElementById('noAdsMessage').classList.add('hidden');
+                document.getElementById('watchAdBtn').disabled = false;
+            }
+            
+            // Update referral link
+            document.getElementById('referralLink').textContent = `https://t.me/RichAirDrop?start=${userData.uid}`;
+            
+            // Update referral message
+            if (userData.totalReferrals > 0) {
+                document.getElementById('referralMessage').textContent = `You have ${userData.totalReferrals} referrals!`;
+            }
+        }
+
+        // Load profile data
+        function loadProfileData() {
+            if (!userData) return;
+            
+            document.getElementById('profileName').textContent = userData.username || 'User';
+            document.getElementById('profileId').textContent = `ID: ${userData.uid}`;
+            document.getElementById('profileAvatar').textContent = userData.username ? userData.username.charAt(0).toUpperCase() : 'U';
+            document.getElementById('usernameInput').value = userData.username || '';
+            
+            document.getElementById('todayIncome').textContent = userData.todayEarned || 0;
+            document.getElementById('allTimeIncome').textContent = userData.totalEarned || 0;
+            document.getElementById('todayAds').textContent = userData.todayAdsWatched || 0;
+            document.getElementById('allTimeAds').textContent = userData.totalAdsWatched || 0;
+        }
+
+        // Update profile
+        function updateProfile() {
+            const username = document.getElementById('usernameInput').value.trim();
+            
+            if (!username) {
+                showToast('Please enter a username.');
+                return;
+            }
+            
+            const userRef = db.collection('users').doc(userData.uid);
+            
+            userRef.update({
+                username: username
+            })
+            .then(() => {
+                userData.username = username;
+                loadProfileData();
+                showToast('Profile updated successfully!');
+            })
+            .catch((error) => {
+                console.error("Error updating profile:", error);
+                showToast("Error updating profile. Please try again.");
+            });
+        }
+
+        // Load referral data
+        function loadReferralData() {
+            if (!userData) return;
+            
+            document.getElementById('totalReferrals').textContent = userData.totalReferrals || 0;
+            document.getElementById('referralEarnings').textContent = userData.referralEarnings || 0;
+            
+            if (userData.totalReferrals > 0) {
+                document.getElementById('referralMessage').textContent = `You have ${userData.totalReferrals} referrals!`;
+            }
         }
 
         // Withdraw SHIB function
         function withdrawSHIB() {
             const amount = parseInt(document.getElementById('withdrawAmount').value);
-            const address = document.getElementById('withdrawAddress').value;
+            const address = document.getElementById('withdrawAddress').value.trim();
             
             if (!amount || amount < 3000) {
                 showToast('Minimum withdrawal amount is 3,000 SHIB.');
@@ -1129,34 +1682,116 @@
                 return;
             }
             
-            // Process withdrawal
-            userData.balance -= amount;
-            userData.totalWithdrawn += amount;
-            
-            // Update UI
-            updateUserUI();
-            
-            // Add to withdrawal history
-            const withdrawal = {
-                id: Date.now(),
+            // Create withdrawal request
+            const withdrawalId = 'wd_' + Date.now();
+            const withdrawalData = {
+                id: withdrawalId,
+                userId: userData.uid,
+                username: userData.username,
                 amount: amount,
                 address: address,
-                date: new Date().toLocaleDateString(),
-                status: 'Pending'
+                date: new Date().toISOString(),
+                status: 'pending'
             };
             
-            userData.withdrawalHistory.unshift(withdrawal);
-            updateWithdrawalHistory();
+            // Add to withdrawals collection
+            db.collection('withdrawals').doc(withdrawalId).set(withdrawalData)
+                .then(() => {
+                    // Update user balance
+                    const userRef = db.collection('users').doc(userData.uid);
+                    const newBalance = userData.balance - amount;
+                    const newTotalWithdrawn = (userData.totalWithdrawn || 0) + amount;
+                    
+                    return userRef.update({
+                        balance: newBalance,
+                        totalWithdrawn: newTotalWithdrawn
+                    });
+                })
+                .then(() => {
+                    // Update local data
+                    userData.balance -= amount;
+                    userData.totalWithdrawn = (userData.totalWithdrawn || 0) + amount;
+                    
+                    // Update UI
+                    updateUserUI();
+                    
+                    // Add to withdrawal history
+                    if (!userData.withdrawalHistory) userData.withdrawalHistory = [];
+                    userData.withdrawalHistory.unshift({
+                        id: withdrawalId,
+                        amount: amount,
+                        address: address,
+                        date: new Date().toLocaleDateString(),
+                        status: 'Pending'
+                    });
+                    
+                    updateWithdrawalHistory();
+                    
+                    // Show success message
+                    showToast(`Withdrawal request for ${amount} SHIB submitted successfully!`);
+                    
+                    // Clear form
+                    document.getElementById('withdrawAmount').value = '';
+                    document.getElementById('withdrawAddress').value = '';
+                })
+                .catch((error) => {
+                    console.error("Error processing withdrawal:", error);
+                    showToast("Error processing withdrawal. Please try again.");
+                });
+        }
+
+        // Update withdrawal history
+        function updateWithdrawalHistory() {
+            const historyContainer = document.getElementById('withdrawalHistory');
             
-            // Show success message
-            showToast(`Withdrawal request for ${amount} SHIB submitted successfully!`);
+            if (!userData.withdrawalHistory || userData.withdrawalHistory.length === 0) {
+                historyContainer.innerHTML = '<p class="text-center">No withdrawal history yet.</p>';
+                return;
+            }
             
-            // Clear form
-            document.getElementById('withdrawAmount').value = '';
-            document.getElementById('withdrawAddress').value = '';
+            let historyHTML = '';
+            userData.withdrawalHistory.forEach(withdrawal => {
+                historyHTML += `
+                    <div class="task-item">
+                        <div class="task-info">
+                            <div>
+                                <div class="task-name">${withdrawal.amount} SHIB</div>
+                                <div class="task-progress">${withdrawal.address} • ${withdrawal.date}</div>
+                            </div>
+                        </div>
+                        <div class="task-status ${withdrawal.status.toLowerCase()}">${withdrawal.status}</div>
+                    </div>
+                `;
+            });
             
-            // Save user data to Firebase in a real implementation
-            // saveUserData();
+            historyContainer.innerHTML = historyHTML;
+        }
+
+        // Load withdrawal history from Firebase
+        function loadWithdrawalHistory() {
+            if (!userData) return;
+            
+            db.collection('withdrawals')
+                .where('userId', '==', userData.uid)
+                .orderBy('date', 'desc')
+                .get()
+                .then((querySnapshot) => {
+                    userData.withdrawalHistory = [];
+                    querySnapshot.forEach((doc) => {
+                        const withdrawal = doc.data();
+                        userData.withdrawalHistory.push({
+                            id: withdrawal.id,
+                            amount: withdrawal.amount,
+                            address: withdrawal.address,
+                            date: new Date(withdrawal.date).toLocaleDateString(),
+                            status: withdrawal.status
+                        });
+                    });
+                    updateWithdrawalHistory();
+                })
+                .catch((error) => {
+                    console.error("Error loading withdrawal history:", error);
+                });
         }
 
         // Copy referral link
@@ -1190,6 +1825,76 @@
             }
         }
 
+        // Load leaderboard data
+        function loadLeaderboardData() {
+            // Load top earners
+            db.collection('users')
+                .orderBy('totalEarned', 'desc')
+                .limit(10)
+                .get()
+                .then((querySnapshot) => {
+                    let earnersHTML = '';
+                    let rank = 1;
+                    
+                    querySnapshot.forEach((doc) => {
+                        const user = doc.data();
+                        earnersHTML += `
+                            <div class="leaderboard-item">
+                                <div class="leaderboard-rank ${rank === 1 ? 'top' : rank === 2 ? 'second' : rank === 3 ? 'third' : ''}">${rank}</div>
+                                <div class="leaderboard-user">
+                                    <div class="leaderboard-name">${user.username || 'User'}</div>
+                                    <div class="leaderboard-id">ID: ${user.uid.substring(0, 10)}...</div>
+                                </div>
+                                <div class="leaderboard-stats">
+                                    <div class="leaderboard-referrals">${user.totalEarned || 0} Earnings</div>
+                                    <div class="leaderboard-reward">${(user.totalEarned || 0) * 20} Reward</div>
+                                </div>
+                            </div>
+                        `;
+                        rank++;
+                    });
+                    
+                    document.getElementById('topEarnersLeaderboard').innerHTML = earnersHTML;
+                })
+                .catch((error) => {
+                    console.error("Error loading top earners:", error);
+                });
+            
+            // Load top referrals
+            db.collection('users')
+                .orderBy('totalReferrals', 'desc')
+                .limit(10)
+                .get()
+                .then((querySnapshot) => {
+                    let referralsHTML = '';
+                    let rank = 1;
+                    
+                    querySnapshot.forEach((doc) => {
+                        const user = doc.data();
+                        referralsHTML += `
+                            <div class="leaderboard-item">
+                                <div class="leaderboard-rank ${rank === 1 ? 'top' : rank === 2 ? 'second' : rank === 3 ? 'third' : ''}">${rank}</div>
+                                <div class="leaderboard-user">
+                                    <div class="leaderboard-name">${user.username || 'User'}</div>
+                                    <div class="leaderboard-id">ID: ${user.uid.substring(0, 10)}...</div>
+                                </div>
+                                <div class="leaderboard-stats">
+                                    <div class="leaderboard-referrals">${user.totalReferrals || 0} Referrals</div>
+                                    <div class="leaderboard-reward">${(user.totalReferrals || 0) * 200} Reward</div>
+                                </div>
+                            </div>
+                        `;
+                        rank++;
+                    });
+                    
+                    document.getElementById('topReferralsLeaderboard').innerHTML = referralsHTML;
+                    document.getElementById('referralLeaderboard').innerHTML = referralsHTML;
+                })
+                .catch((error) => {
+                    console.error("Error loading top referrals:", error);
+                });
+        }
+
         // Admin login function
         function adminLogin() {
             const username = document.getElementById('adminUsername').value;
@@ -1205,6 +1910,8 @@
                 loadAdsData();
                 loadWithdrawalsData();
                 loadUsersData();
+                loadTasksData();
+                loadAdminDashboard();
             } else {
                 showToast('Invalid admin credentials.');
             }
@@ -1241,20 +1948,444 @@
                 return;
             }
             
-            // In a real implementation, we would save the ad to Firebase
-            // For this demo, we'll just show a success message
-            showToast('Ad saved successfully!');
-            addAdModal.style.display = 'none';
+            const adId = 'ad_' + Date.now();
+            const adData = {
+                id: adId,
+                title: title,
+                description: description,
+                reward: reward,
+                dailyLimit: dailyLimit,
+                duration: duration,
+                active: true,
+                created: new Date().toISOString()
+            };
             
-            // Clear form
-            document.getElementById('adTitle').value = '';
-            document.getElementById('adDescription').value = '';
-            document.getElementById('adReward').value = '20';
-            document.getElementById('adDailyLimit').value = '1000';
-            document.getElementById('adDuration').value = '30';
+            db.collection('ads').doc(adId).set(adData)
+                .then(() => {
+                    showToast('Ad saved successfully!');
+                    addAdModal.style.display = 'none';
+                    
+                    // Clear form
+                    document.getElementById('adTitle').value = '';
+                    document.getElementById('adDescription').value = '';
+                    document.getElementById('adReward').value = '20';
+                    document.getElementById('adDailyLimit').value = '1000';
+                    document.getElementById('adDuration').value = '30';
+                    
+                    // Reload ads data
+                    loadAdsData();
+                })
+                .catch((error) => {
+                    console.error("Error saving ad:", error);
+                    showToast("Error saving ad. Please try again.");
+                });
+        }
+
+        // Show add task modal
+        function showAddTaskModal() {
+            addTaskModal.style.display = 'flex';
+        }
+
+        // Save task
+        function saveTask() {
+            const name = document.getElementById('taskName').value;
+            const description = document.getElementById('taskDescription').value;
+            const reward = parseInt(document.getElementById('taskReward').value);
+            const required = parseInt(document.getElementById('taskRequired').value);
+            const type = document.getElementById('taskType').value;
             
-            // Reload ads data
-            loadAdsData();
+            if (!name || !description) {
+                showToast('Please fill in all required fields.');
+                return;
+            }
+            
+            const taskId = 'task_' + Date.now();
+            const taskData = {
+                id: taskId,
+                name: name,
+                description: description,
+                reward: reward,
+                required: required,
+                type: type,
+                active: true,
+                created: new Date().toISOString()
+            };
+            
+            db.collection('tasks').doc(taskId).set(taskData)
+                .then(() => {
+                    showToast('Task saved successfully!');
+                    addTaskModal.style.display = 'none';
+                    
+                    // Clear form
+                    document.getElementById('taskName').value = '';
+                    document.getElementById('taskDescription').value = '';
+                    document.getElementById('taskReward').value = '50';
+                    document.getElementById('taskRequired').value = '3';
+                    document.getElementById('taskType').value = 'join';
+                    
+                    // Reload tasks data
+                    loadTasksData();
+                })
+                .catch((error) => {
+                    console.error("Error saving task:", error);
+                    showToast("Error saving task. Please try again.");
+                });
+        }
+
+        // Load ads data for admin
+        function loadAdsData() {
+            db.collection('ads').get()
+                .then((querySnapshot) => {
+                    let adsHTML = '';
+                    querySnapshot.forEach((doc) => {
+                        const ad = doc.data();
+                        adsHTML += `
+                            <tr>
+                                <td>${ad.title}</td>
+                                <td>${ad.reward} SHIB</td>
+                                <td>0</td>
+                                <td>${ad.active ? 'Active' : 'Inactive'}</td>
+                                <td>
+                                    <button class="action-btn" data-ad-id="${ad.id}">Edit</button>
+                                    <button class="action-btn delete" data-ad-id="${ad.id}">Delete</button>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                    
+                    document.getElementById('adsTableBody').innerHTML = adsHTML;
+                    
+                    // Add event listeners
+                    document.querySelectorAll('#adsTableBody .action-btn').forEach(button => {
+                        button.addEventListener('click', (e) => {
+                            const adId = e.target.getAttribute('data-ad-id');
+                            if (e.target.classList.contains('delete')) {
+                                deleteAd(adId);
+                            } else {
+                                editAd(adId);
+                            }
+                        });
+                    });
+                })
+                .catch((error) => {
+                    console.error("Error loading ads:", error);
+                });
+        }
+
+        // Load tasks data for admin
+        function loadTasksData() {
+            db.collection('tasks').get()
+                .then((querySnapshot) => {
+                    let tasksHTML = '';
+                    querySnapshot.forEach((doc) => {
+                        const task = doc.data();
+                        tasksHTML += `
+                            <tr>
+                                <td>${task.name}</td>
+                                <td>${task.reward} SHIB</td>
+                                <td>${task.required}</td>
+                                <td>${task.active ? 'Active' : 'Inactive'}</td>
+                                <td>
+                                    <button class="action-btn" data-task-id="${task.id}">Edit</button>
+                                    <button class="action-btn delete" data-task-id="${task.id}">Delete</button>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                    
+                    document.getElementById('tasksTableBody').innerHTML = tasksHTML;
+                    
+                    // Add event listeners
+                    document.querySelectorAll('#tasksTableBody .action-btn').forEach(button => {
+                        button.addEventListener('click', (e) => {
+                            const taskId = e.target.getAttribute('data-task-id');
+                            if (e.target.classList.contains('delete')) {
+                                deleteTask(taskId);
+                            } else {
+                                editTask(taskId);
+                            }
+                        });
+                    });
+                })
+                .catch((error) => {
+                    console.error("Error loading tasks:", error);
+                });
+        }
+
+        // Delete ad
+        function deleteAd(adId) {
+            if (confirm('Are you sure you want to delete this ad?')) {
+                db.collection('ads').doc(adId).delete()
+                    .then(() => {
+                        showToast('Ad deleted successfully!');
+                        loadAdsData();
+                    })
+                    .catch((error) => {
+                        console.error("Error deleting ad:", error);
+                        showToast("Error deleting ad. Please try again.");
+                    });
+            }
+        }
+
+        // Edit ad (placeholder)
+        function editAd(adId) {
+            showToast('Edit functionality coming soon!');
+        }
+
+        // Delete task
+        function deleteTask(taskId) {
+            if (confirm('Are you sure you want to delete this task?')) {
+                db.collection('tasks').doc(taskId).delete()
+                    .then(() => {
+                        showToast('Task deleted successfully!');
+                        loadTasksData();
+                    })
+                    .catch((error) => {
+                        console.error("Error deleting task:", error);
+                        showToast("Error deleting task. Please try again.");
+                    });
+            }
+        }
+
+        // Edit task (placeholder)
+        function editTask(taskId) {
+            showToast('Edit functionality coming soon!');
+        }
+
+        // Load withdrawals data for admin
+        function loadWithdrawalsData() {
+            // Load pending withdrawals
+            db.collection('withdrawals')
+                .where('status', '==', 'pending')
+                .orderBy('date', 'desc')
+                .get()
+                .then((querySnapshot) => {
+                    let pendingHTML = '';
+                    querySnapshot.forEach((doc) => {
+                        const withdrawal = doc.data();
+                        pendingHTML += `
+                            <tr>
+                                <td>${withdrawal.userId.substring(0, 10)}...</td>
+                                <td>${withdrawal.username || 'User'}</td>
+                                <td>${withdrawal.amount} SHIB</td>
+                                <td>${withdrawal.address.substring(0, 10)}...</td>
+                                <td>${new Date(withdrawal.date).toLocaleDateString()}</td>
+                                <td>
+                                    <button class="action-btn approve" data-withdrawal-id="${withdrawal.id}">Approve</button>
+                                    <button class="action-btn delete" data-withdrawal-id="${withdrawal.id}">Reject</button>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                    document.getElementById('pendingWithdrawalsTableBody').innerHTML = pendingHTML;
+                    
+                    // Add event listeners
+                    document.querySelectorAll('#pendingWithdrawalsTableBody .action-btn').forEach(button => {
+                        button.addEventListener('click', (e) => {
+                            const withdrawalId = e.target.getAttribute('data-withdrawal-id');
+                            if (e.target.classList.contains('approve')) {
+                                approveWithdrawal(withdrawalId);
+                            } else {
+                                rejectWithdrawal(withdrawalId);
+                            }
+                        });
+                    });
+                })
+                .catch((error) => {
+                    console.error("Error loading pending withdrawals:", error);
+                });
+            
+            // Load withdrawal history
+            db.collection('withdrawals')
+                .where('status', 'in', ['approved', 'rejected'])
+                .orderBy('date', 'desc')
+                .limit(50)
+                .get()
+                .then((querySnapshot) => {
+                    let historyHTML = '';
+                    querySnapshot.forEach((doc) => {
+                        const withdrawal = doc.data();
+                        historyHTML += `
+                            <tr>
+                                <td>${withdrawal.userId.substring(0, 10)}...</td>
+                                <td>${withdrawal.username || 'User'}</td>
+                                <td>${withdrawal.amount} SHIB</td>
+                                <td>${withdrawal.address.substring(0, 10)}...</td>
+                                <td>${withdrawal.status}</td>
+                                <td>${new Date(withdrawal.date).toLocaleDateString()}</td>
+                            </tr>
+                        `;
+                    });
+                    document.getElementById('withdrawalHistoryTableBody').innerHTML = historyHTML;
+                })
+                .catch((error) => {
+                    console.error("Error loading withdrawal history:", error);
+                });
+        }
+
+        // Approve withdrawal
+        function approveWithdrawal(withdrawalId) {
+            db.collection('withdrawals').doc(withdrawalId).update({
+                status: 'approved',
+                processedDate: new Date().toISOString()
+            })
+            .then(() => {
+                showToast('Withdrawal approved successfully!');
+                loadWithdrawalsData();
+            })
+            .catch((error) => {
+                console.error("Error approving withdrawal:", error);
+                showToast("Error approving withdrawal. Please try again.");
+            });
+        }
+
+        // Reject withdrawal
+        function rejectWithdrawal(withdrawalId) {
+            db.collection('withdrawals').doc(withdrawalId).update({
+                status: 'rejected',
+                processedDate: new Date().toISOString()
+            })
+            .then(() => {
+                // Return funds to user
+                db.collection('withdrawals').doc(withdrawalId).get()
+                    .then((doc) => {
+                        const withdrawal = doc.data();
+                        return db.collection('users').doc(withdrawal.userId).get();
+                    })
+                    .then((userDoc) => {
+                        const user = userDoc.data();
+                        return db.collection('users').doc(user.uid).update({
+                            balance: (user.balance || 0) + withdrawal.amount
+                        });
+                    })
+                    .then(() => {
+                        showToast('Withdrawal rejected and funds returned to user!');
+                        loadWithdrawalsData();
+                    });
+            })
+            .catch((error) => {
+                console.error("Error rejecting withdrawal:", error);
+                showToast("Error rejecting withdrawal. Please try again.");
+            });
+        }
+
+        // Load users data for admin
+        function loadUsersData() {
+            db.collection('users').orderBy('joinedDate', 'desc').limit(50).get()
+                .then((querySnapshot) => {
+                    let usersHTML = '';
+                    querySnapshot.forEach((doc) => {
+                        const user = doc.data();
+                        usersHTML += `
+                            <tr>
+                                <td>${user.username || 'User'}</td>
+                                <td>${user.uid.substring(0, 10)}...</td>
+                                <td>${user.balance || 0} SHIB</td>
+                                <td>${user.totalReferrals || 0}</td>
+                                <td>${new Date(user.joinedDate).toLocaleDateString()}</td>
+                                <td>Active</td>
+                                <td>
+                                    <button class="action-btn" data-user-id="${user.uid}">Edit</button>
+                                    <button class="action-btn delete" data-user-id="${user.uid}">Suspend</button>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                    
+                    document.getElementById('usersTableBody').innerHTML = usersHTML;
+                    
+                    // Add event listeners
+                    document.querySelectorAll('#usersTableBody .action-btn').forEach(button => {
+                        button.addEventListener('click', (e) => {
+                            const userId = e.target.getAttribute('data-user-id');
+                            if (e.target.classList.contains('delete')) {
+                                suspendUser(userId);
+                            } else {
+                                editUser(userId);
+                            }
+                        });
+                    });
+                })
+                .catch((error) => {
+                    console.error("Error loading users:", error);
+                });
+        }
+
+        // Suspend user (placeholder)
+        function suspendUser(userId) {
+            showToast('User suspension functionality coming soon!');
+        }
+
+        // Edit user (placeholder)
+        function editUser(userId) {
+            showToast('User edit functionality coming soon!');
+        }
+
+        // Load admin dashboard
+        function loadAdminDashboard() {
+            // Load total users
+            db.collection('users').get()
+                .then((querySnapshot) => {
+                    document.getElementById('adminTotalUsers').textContent = querySnapshot.size;
+                })
+                .catch((error) => {
+                    console.error("Error loading total users:", error);
+                });
+            
+            // Load total withdrawals
+            db.collection('withdrawals').get()
+                .then((querySnapshot) => {
+                    document.getElementById('adminTotalWithdrawals').textContent = querySnapshot.size;
+                    
+                    // Calculate total earned
+                    let totalEarned = 0;
+                    querySnapshot.forEach((doc) => {
+                        const withdrawal = doc.data();
+                        if (withdrawal.status === 'approved') {
+                            totalEarned += withdrawal.amount;
+                        }
+                    });
+                    document.getElementById('adminTotalEarned').textContent = totalEarned;
+                })
+                .catch((error) => {
+                    console.error("Error loading withdrawals:", error);
+                });
+            
+            // Load pending withdrawals count
+            db.collection('withdrawals').where('status', '==', 'pending').get()
+                .then((querySnapshot) => {
+                    document.getElementById('adminPendingWithdrawals').textContent = querySnapshot.size;
+                })
+                .catch((error) => {
+                    console.error("Error loading pending withdrawals:", error);
+                });
+            
+            // Load recent activity
+            db.collection('withdrawals')
+                .orderBy('date', 'desc')
+                .limit(5)
+                .get()
+                .then((querySnapshot) => {
+                    let activityHTML = '';
+                    querySnapshot.forEach((doc) => {
+                        const withdrawal = doc.data();
+                        activityHTML += `
+                            <div class="task-item">
+                                <div class="task-info">
+                                    <div>
+                                        <div class="task-name">${withdrawal.username || 'User'} - ${withdrawal.amount} SHIB</div>
+                                        <div class="task-progress">${withdrawal.address.substring(0, 10)}... • ${new Date(withdrawal.date).toLocaleDateString()}</div>
+                                    </div>
+                                </div>
+                                <div class="task-status ${withdrawal.status}">${withdrawal.status}</div>
+                            </div>
+                        `;
+                    });
+                    document.getElementById('adminRecentActivity').innerHTML = activityHTML;
+                })
+                .catch((error) => {
+                    console.error("Error loading recent activity:", error);
+                });
         }
 
         // Save settings
@@ -1265,231 +2396,22 @@
             const adsPerHour = parseInt(document.getElementById('adsPerHour').value);
             
             // In a real implementation, we would save these settings to Firebase
-            showToast('Settings saved successfully!');
-        }
-
-        // Load user data
-        function loadUserData() {
-            // In a real implementation, we would load user data from Firebase
-            // For this demo, we'll use mock data
-            userData = {
-                balance: 1250,
-                totalAdsWatched: 3,
-                adsLeftThisHour: 5,
-                totalReferrals: 0,
-                referralEarnings: 0,
-                totalWithdrawn: 0,
-                withdrawalHistory: []
+            const settings = {
+                rewardPerAd: rewardPerAd,
+                minWithdrawal: minWithdrawal,
+                referralReward: referralReward,
+                adsPerHour: adsPerHour,
+                updated: new Date().toISOString()
             };
             
-            updateUserUI();
-        }
-
-        // Update user UI
-        function updateUserUI() {
-            document.getElementById('totalWatched').textContent = userData.totalAdsWatched;
-            document.getElementById('leftThisHour').textContent = userData.adsLeftThisHour;
-            document.getElementById('totalReferrals').textContent = userData.totalReferrals;
-            document.getElementById('referralEarnings').textContent = userData.referralEarnings;
-            
-            // Show/hide no ads message
-            if (userData.adsLeftThisHour <= 0) {
-                document.getElementById('noAdsMessage').classList.remove('hidden');
-                document.getElementById('watchAdBtn').disabled = true;
-            } else {
-                document.getElementById('noAdsMessage').classList.add('hidden');
-                document.getElementById('watchAdBtn').disabled = false;
-            }
-        }
-
-        // Update withdrawal history
-        function updateWithdrawalHistory() {
-            const historyContainer = document.getElementById('withdrawalHistory');
-            
-            if (userData.withdrawalHistory.length === 0) {
-                historyContainer.innerHTML = '<p class="text-center">No withdrawal history yet.</p>';
-                return;
-            }
-            
-            let historyHTML = '';
-            userData.withdrawalHistory.forEach(withdrawal => {
-                historyHTML += `
-                    <div class="task-item">
-                        <div class="task-info">
-                            <div>
-                                <div class="task-name">${withdrawal.amount} SHIB</div>
-                                <div class="task-progress">${withdrawal.address} • ${withdrawal.date}</div>
-                            </div>
-                        </div>
-                        <div class="task-status ${withdrawal.status.toLowerCase()}">${withdrawal.status}</div>
-                    </div>
-                `;
-            });
-            
-            historyContainer.innerHTML = historyHTML;
-        }
-
-        // Load leaderboard data
-        function loadLeaderboardData() {
-            // Mock leaderboard data
-            const topEarners = [
-                { rank: 1, name: 'siak', id: '7690463936', earnings: 7302, reward: 2190600 },
-                { rank: 2, name: '????? ??', id: '7763323497', earnings: 1648, reward: 494400 },
-                { rank: 3, name: 'User', id: '6527223958', earnings: 1181, reward: 354300 },
-                { rank: 4, name: 'User', id: '8301706424', earnings: 1013, reward: 303900 },
-                { rank: 5, name: 'User', id: '8225534864', earnings: 663, reward: 198900 }
-            ];
-            
-            const topReferrals = [
-                { rank: 1, name: 'siak', id: '7690463936', referrals: 7302, reward: 2190600 },
-                { rank: 2, name: '????? ??', id: '7763323497', referrals: 1648, reward: 494400 },
-                { rank: 3, name: 'User', id: '6527223958', referrals: 1181, reward: 354300 },
-                { rank: 4, name: 'User', id: '8301706424', referrals: 1013, reward: 303900 },
-                { rank: 5, name: 'User', id: '8225534864', referrals: 663, reward: 198900 }
-            ];
-            
-            // Update top earners leaderboard
-            let earnersHTML = '';
-            topEarners.forEach(user => {
-                earnersHTML += `
-                    <div class="leaderboard-item">
-                        <div class="leaderboard-rank ${user.rank === 1 ? 'top' : user.rank === 2 ? 'second' : user.rank === 3 ? 'third' : ''}">${user.rank}</div>
-                        <div class="leaderboard-user">
-                            <div class="leaderboard-name">${user.name}</div>
-                            <div class="leaderboard-id">ID: ${user.id}</div>
-                        </div>
-                        <div class="leaderboard-stats">
-                            <div class="leaderboard-referrals">${user.earnings} Earnings</div>
-                            <div class="leaderboard-reward">${user.reward} Reward</div>
-                        </div>
-                    </div>
-                `;
-            });
-            document.getElementById('topEarnersLeaderboard').innerHTML = earnersHTML;
-            
-            // Update top referrals leaderboard
-            let referralsHTML = '';
-            topReferrals.forEach(user => {
-                referralsHTML += `
-                    <div class="leaderboard-item">
-                        <div class="leaderboard-rank ${user.rank === 1 ? 'top' : user.rank === 2 ? 'second' : user.rank === 3 ? 'third' : ''}">${user.rank}</div>
-                        <div class="leaderboard-user">
-                            <div class="leaderboard-name">${user.name}</div>
-                            <div class="leaderboard-id">ID: ${user.id}</div>
-                        </div>
-                        <div class="leaderboard-stats">
-                            <div class="leaderboard-referrals">${user.referrals} Referrals</div>
-                            <div class="leaderboard-reward">${user.reward} Reward</div>
-                        </div>
-                    </div>
-                `;
-            });
-            document.getElementById('topReferralsLeaderboard').innerHTML = referralsHTML;
-            document.getElementById('referralLeaderboard').innerHTML = referralsHTML;
-        }
-
-        // Load ads data for admin
-        function loadAdsData() {
-            // Mock ads data
-            const ads = [
-                { id: 1, title: 'Crypto Exchange Ad', reward: 20, views: 1542, status: 'Active' },
-                { id: 2, title: 'NFT Marketplace Promo', reward: 25, views: 892, status: 'Active' },
-                { id: 3, title: 'DeFi Platform', reward: 30, views: 432, status: 'Paused' }
-            ];
-            
-            let adsHTML = '';
-            ads.forEach(ad => {
-                adsHTML += `
-                    <tr>
-                        <td>${ad.title}</td>
-                        <td>${ad.reward} SHIB</td>
-                        <td>${ad.views}</td>
-                        <td>${ad.status}</td>
-                        <td>
-                            <button class="action-btn">Edit</button>
-                            <button class="action-btn delete">Delete</button>
-                        </td>
-                    </tr>
-                `;
-            });
-            
-            document.getElementById('adsTableBody').innerHTML = adsHTML;
-        }
-
-        // Load withdrawals data for admin
-        function loadWithdrawalsData() {
-            // Mock withdrawals data
-            const pendingWithdrawals = [
-                { id: 1, userId: 'user123', amount: 3500, address: '0x1a2b3c...', date: '2023-05-15' },
-                { id: 2, userId: 'user456', amount: 5000, address: '0x4d5e6f...', date: '2023-05-14' }
-            ];
-            
-            const withdrawalHistory = [
-                { id: 3, userId: 'user789', amount: 3000, address: '0x7a8b9c...', status: 'Approved', date: '2023-05-10' },
-                { id: 4, userId: 'user012', amount: 4500, address: '0x1d2e3f...', status: 'Rejected', date: '2023-05-08' }
-            ];
-            
-            // Update pending withdrawals table
-            let pendingHTML = '';
-            pendingWithdrawals.forEach(withdrawal => {
-                pendingHTML += `
-                    <tr>
-                        <td>${withdrawal.userId}</td>
-                        <td>${withdrawal.amount} SHIB</td>
-                        <td>${withdrawal.address}</td>
-                        <td>${withdrawal.date}</td>
-                        <td>
-                            <button class="action-btn">Approve</button>
-                            <button class="action-btn delete">Reject</button>
-                        </td>
-                    </tr>
-                `;
-            });
-            document.getElementById('pendingWithdrawalsTableBody').innerHTML = pendingHTML;
-            
-            // Update withdrawal history table
-            let historyHTML = '';
-            withdrawalHistory.forEach(withdrawal => {
-                historyHTML += `
-                    <tr>
-                        <td>${withdrawal.userId}</td>
-                        <td>${withdrawal.amount} SHIB</td>
-                        <td>${withdrawal.address}</td>
-                        <td>${withdrawal.status}</td>
-                        <td>${withdrawal.date}</td>
-                    </tr>
-                `;
-            });
-            document.getElementById('withdrawalHistoryTableBody').innerHTML = historyHTML;
-        }
-
-        // Load users data for admin
-        function loadUsersData() {
-            // Mock users data
-            const users = [
-                { id: 'user123', balance: 1250, referrals: 3, joined: '2023-04-15', status: 'Active' },
-                { id: 'user456', balance: 3500, referrals: 7, joined: '2023-04-10', status: 'Active' },
-                { id: 'user789', balance: 0, referrals: 0, joined: '2023-05-01', status: 'Suspended' }
-            ];
-            
-            let usersHTML = '';
-            users.forEach(user => {
-                usersHTML += `
-                    <tr>
-                        <td>${user.id}</td>
-                        <td>${user.balance} SHIB</td>
-                        <td>${user.referrals}</td>
-                        <td>${user.joined}</td>
-                        <td>${user.status}</td>
-                        <td>
-                            <button class="action-btn">Edit</button>
-                            <button class="action-btn ${user.status === 'Active' ? 'delete' : ''}">${user.status === 'Active' ? 'Suspend' : 'Activate'}</button>
-                        </td>
-                    </tr>
-                `;
-            });
-            
-            document.getElementById('usersTableBody').innerHTML = usersHTML;
+            db.collection('settings').doc('system').set(settings)
+                .then(() => {
+                    showToast('Settings saved successfully!');
+                })
+                .catch((error) => {
+                    console.error("Error saving settings:", error);
+                    showToast("Error saving settings. Please try again.");
+                });
         }
 
         // Show toast notification
