@@ -30,7 +30,7 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         body {
@@ -75,16 +75,19 @@
 
         .logo {
             font-size: 28px;
-            font-weight: bold;
+            font-weight: 800;
             margin-bottom: 5px;
             position: relative;
             text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            letter-spacing: 0.5px;
         }
 
         .tagline {
             font-size: 16px;
             opacity: 0.9;
             position: relative;
+            font-weight: 300;
+            letter-spacing: 0.3px;
         }
 
         /* User Profile */
@@ -125,14 +128,16 @@
         }
 
         .username {
-            font-weight: bold;
+            font-weight: 700;
             font-size: 18px;
             margin-bottom: 4px;
+            letter-spacing: 0.2px;
         }
 
         .user-id {
             font-size: 13px;
             color: var(--text-secondary);
+            font-weight: 300;
         }
 
         .balance {
@@ -141,15 +146,16 @@
 
         .shib-amount {
             font-size: 20px;
-            font-weight: bold;
+            font-weight: 700;
             color: var(--highlight);
             text-shadow: 0 2px 10px rgba(233, 69, 96, 0.3);
+            letter-spacing: 0.3px;
         }
 
-        /* Stats Cards */
+        /* Stats Cards - New Layout */
         .stats-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
+            display: flex;
+            justify-content: space-between;
             gap: 15px;
             margin-bottom: 25px;
         }
@@ -163,6 +169,7 @@
             transition: var(--transition);
             animation: fadeInUp 0.8s ease;
             border: 1px solid rgba(255, 255, 255, 0.05);
+            flex: 1;
         }
 
         .stat-card:nth-child(1) { animation-delay: 0.1s; }
@@ -176,132 +183,103 @@
 
         .stat-number {
             font-size: 24px;
-            font-weight: bold;
+            font-weight: 700;
             margin-bottom: 8px;
             color: var(--highlight);
+            letter-spacing: 0.3px;
         }
 
         .stat-label {
             font-size: 13px;
             color: var(--text-secondary);
+            font-weight: 400;
+            letter-spacing: 0.2px;
         }
 
-        .reward-card {
-            background: linear-gradient(135deg, var(--accent), var(--highlight));
+        /* New Activity Section - Like Second Image */
+        .activity-section {
+            background-color: var(--card-bg);
             border-radius: 16px;
-            padding: 20px;
+            padding: 25px;
             margin-bottom: 25px;
-            text-align: center;
             box-shadow: var(--shadow);
             animation: fadeIn 0.8s ease 0.4s both;
             position: relative;
             overflow: hidden;
-        }
-
-        .reward-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%);
-            animation: shine 3s infinite;
-        }
-
-        .reward-label {
-            font-size: 16px;
-            color: rgba(255, 255, 255, 0.9);
-            margin-bottom: 8px;
-        }
-
-        .reward-amount {
-            font-size: 28px;
-            font-weight: bold;
-            color: white;
-            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-        }
-
-        /* Activity Status */
-        .activity-status {
-            background-color: var(--card-bg);
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 25px;
-            box-shadow: var(--shadow);
-            animation: fadeIn 0.8s ease 0.5s both;
-            transition: var(--transition);
             border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        .activity-status:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
-        }
-
-        .status-message {
-            display: flex;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-
-        .status-icon {
-            margin-right: 12px;
+        .activity-header {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-align: center;
             color: var(--highlight);
-            font-size: 20px;
+            letter-spacing: 0.3px;
+            text-shadow: 0 2px 10px rgba(233, 69, 96, 0.2);
         }
 
-        .progress-bar {
-            height: 10px;
-            background-color: var(--primary-bg);
-            border-radius: 10px;
-            overflow: hidden;
-            margin-bottom: 15px;
-            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+        .activity-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 25px;
+            gap: 15px;
         }
 
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--highlight), #ff7b93);
-            width: 0%;
-            border-radius: 10px;
-            transition: width 0.5s ease;
-            box-shadow: 0 0 10px rgba(233, 69, 96, 0.5);
+        .activity-stat {
+            flex: 1;
+            text-align: center;
         }
 
-        .action-button {
+        .activity-stat-number {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 5px;
+            color: var(--highlight);
+            letter-spacing: 0.3px;
+        }
+
+        .activity-stat-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            font-weight: 400;
+            letter-spacing: 0.2px;
+        }
+
+        .watch-ad-button {
             background: linear-gradient(135deg, var(--highlight), #ff7b93);
             color: white;
             border: none;
             border-radius: 12px;
             padding: 16px;
             width: 100%;
-            font-weight: bold;
+            font-weight: 700;
             font-size: 18px;
             cursor: pointer;
             transition: var(--transition);
             box-shadow: 0 4px 15px rgba(233, 69, 96, 0.4);
             position: relative;
             overflow: hidden;
+            letter-spacing: 0.5px;
         }
 
-        .action-button:hover {
+        .watch-ad-button:hover {
             transform: translateY(-3px);
             box-shadow: 0 8px 25px rgba(233, 69, 96, 0.6);
         }
 
-        .action-button:active {
+        .watch-ad-button:active {
             transform: translateY(1px);
         }
 
-        .action-button:disabled {
+        .watch-ad-button:disabled {
             background: var(--text-secondary);
             cursor: not-allowed;
             transform: none;
             box-shadow: none;
         }
 
-        .action-button::after {
+        .watch-ad-button::after {
             content: '';
             position: absolute;
             top: 0;
@@ -312,17 +290,19 @@
             transform: translateX(-100%);
         }
 
-        .action-button:not(:disabled):hover::after {
+        .watch-ad-button:not(:disabled):hover::after {
             animation: shine 1.5s;
         }
 
         /* Task Cards */
         .section-title {
-            font-size: 20px;
+            font-size: 22px;
             margin: 25px 0 20px;
             padding-bottom: 12px;
             border-bottom: 1px solid var(--border);
             animation: fadeIn 0.8s ease;
+            font-weight: 700;
+            letter-spacing: 0.3px;
         }
 
         .task-card {
@@ -361,9 +341,10 @@
         }
 
         .task-title {
-            font-weight: bold;
+            font-weight: 600;
             flex: 1;
             font-size: 17px;
+            letter-spacing: 0.2px;
         }
 
         .task-progress {
@@ -395,6 +376,8 @@
         .progress-text {
             font-size: 15px;
             color: var(--text-secondary);
+            font-weight: 400;
+            letter-spacing: 0.2px;
         }
 
         .claim-button {
@@ -403,11 +386,12 @@
             border: none;
             border-radius: 10px;
             padding: 12px 20px;
-            font-weight: bold;
+            font-weight: 600;
             cursor: pointer;
             transition: var(--transition);
             width: 100%;
             box-shadow: 0 4px 15px rgba(233, 69, 96, 0.3);
+            letter-spacing: 0.3px;
         }
 
         .claim-button:hover {
@@ -444,6 +428,8 @@
             margin-bottom: 20px;
             text-align: center;
             color: var(--highlight);
+            font-weight: 700;
+            letter-spacing: 0.3px;
         }
 
         .min-withdraw {
@@ -451,6 +437,8 @@
             margin-bottom: 25px;
             font-size: 15px;
             color: var(--text-secondary);
+            font-weight: 400;
+            letter-spacing: 0.2px;
         }
 
         .input-group {
@@ -462,6 +450,8 @@
             margin-bottom: 10px;
             font-size: 15px;
             color: var(--text-secondary);
+            font-weight: 500;
+            letter-spacing: 0.2px;
         }
 
         .input-field {
@@ -473,6 +463,8 @@
             color: var(--text);
             font-size: 16px;
             transition: var(--transition);
+            font-weight: 400;
+            letter-spacing: 0.2px;
         }
 
         .input-field:focus {
@@ -488,7 +480,7 @@
             border-radius: 12px;
             padding: 18px;
             width: 100%;
-            font-weight: bold;
+            font-weight: 700;
             font-size: 18px;
             cursor: pointer;
             transition: var(--transition);
@@ -497,6 +489,7 @@
             justify-content: center;
             margin-top: 25px;
             box-shadow: 0 4px 15px rgba(233, 69, 96, 0.4);
+            letter-spacing: 0.5px;
         }
 
         .withdraw-button i {
@@ -526,6 +519,8 @@
         .history-title {
             font-size: 20px;
             margin-bottom: 20px;
+            font-weight: 700;
+            letter-spacing: 0.3px;
         }
 
         .no-history {
@@ -533,6 +528,8 @@
             padding: 30px;
             color: var(--text-secondary);
             font-style: italic;
+            font-weight: 400;
+            letter-spacing: 0.2px;
         }
 
         /* Referral Section */
@@ -556,6 +553,8 @@
             text-align: center;
             margin-bottom: 25px;
             color: var(--text-secondary);
+            font-weight: 400;
+            letter-spacing: 0.2px;
         }
 
         .referral-link-container {
@@ -573,6 +572,8 @@
             font-family: monospace;
             font-size: 15px;
             word-break: break-all;
+            font-weight: 400;
+            letter-spacing: 0.2px;
         }
 
         .copy-button {
@@ -585,6 +586,8 @@
             margin-left: 12px;
             transition: var(--transition);
             box-shadow: 0 4px 15px rgba(15, 52, 96, 0.3);
+            font-weight: 500;
+            letter-spacing: 0.2px;
         }
 
         .copy-button:hover {
@@ -610,6 +613,8 @@
         .leaderboard-title {
             font-size: 20px;
             margin-bottom: 20px;
+            font-weight: 700;
+            letter-spacing: 0.3px;
         }
 
         .leaderboard-item {
@@ -634,9 +639,10 @@
         .rank {
             width: 35px;
             text-align: center;
-            font-weight: bold;
+            font-weight: 700;
             margin-right: 12px;
             font-size: 18px;
+            letter-spacing: 0.2px;
         }
 
         .user-avatar {
@@ -648,7 +654,7 @@
             align-items: center;
             justify-content: center;
             margin-right: 15px;
-            font-weight: bold;
+            font-weight: 700;
             box-shadow: 0 4px 15px rgba(15, 52, 96, 0.3);
         }
 
@@ -657,13 +663,16 @@
         }
 
         .user-name {
-            font-weight: bold;
+            font-weight: 600;
             font-size: 16px;
+            letter-spacing: 0.2px;
         }
 
         .user-id {
             font-size: 13px;
             color: var(--text-secondary);
+            font-weight: 400;
+            letter-spacing: 0.2px;
         }
 
         .referral-stats {
@@ -671,14 +680,17 @@
         }
 
         .referral-count {
-            font-weight: bold;
+            font-weight: 600;
             margin-bottom: 5px;
             font-size: 16px;
+            letter-spacing: 0.2px;
         }
 
         .referral-reward {
             font-size: 13px;
             color: var(--highlight);
+            font-weight: 500;
+            letter-spacing: 0.2px;
         }
 
         /* Navigation */
@@ -706,6 +718,8 @@
             font-size: 12px;
             transition: var(--transition);
             position: relative;
+            font-weight: 500;
+            letter-spacing: 0.2px;
         }
 
         .nav-item.active {
@@ -772,6 +786,8 @@
             cursor: pointer;
             border-bottom: 3px solid transparent;
             transition: var(--transition);
+            font-weight: 500;
+            letter-spacing: 0.2px;
         }
 
         .admin-tab.active {
@@ -816,11 +832,13 @@
             padding: 15px;
             text-align: left;
             border-bottom: 1px solid var(--border);
+            font-weight: 500;
+            letter-spacing: 0.2px;
         }
 
         .admin-table th {
             color: var(--text-secondary);
-            font-weight: normal;
+            font-weight: 500;
         }
 
         .admin-button {
@@ -834,6 +852,8 @@
             font-size: 14px;
             transition: var(--transition);
             box-shadow: 0 4px 15px rgba(233, 69, 96, 0.3);
+            font-weight: 500;
+            letter-spacing: 0.2px;
         }
 
         .admin-button:hover {
@@ -862,6 +882,8 @@
         .admin-label {
             margin-bottom: 8px;
             color: var(--text-secondary);
+            font-weight: 500;
+            letter-spacing: 0.2px;
         }
 
         .admin-input {
@@ -871,6 +893,8 @@
             background-color: var(--primary-bg);
             color: var(--text);
             transition: var(--transition);
+            font-weight: 400;
+            letter-spacing: 0.2px;
         }
 
         .admin-input:focus {
@@ -879,78 +903,31 @@
             box-shadow: 0 0 0 2px rgba(233, 69, 96, 0.2);
         }
 
-        /* Ad Modal */
-        .modal-overlay {
+        /* Ad Loading Indicator */
+        .ad-loading {
             position: fixed;
             top: 0;
             left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: rgba(0, 0, 0, 0.9);
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
             display: flex;
-            align-items: center;
+            flex-direction: column;
             justify-content: center;
+            align-items: center;
             z-index: 1000;
             display: none;
-            animation: fadeIn 0.3s ease;
         }
 
-        .modal-overlay.active {
+        .ad-loading.active {
             display: flex;
         }
 
-        .ad-modal {
-            background-color: var(--card-bg);
-            border-radius: 20px;
-            padding: 30px;
-            max-width: 90%;
-            max-height: 90%;
-            overflow: auto;
-            text-align: center;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-            animation: scaleIn 0.3s ease;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .ad-title {
+        .ad-loading-text {
             font-size: 24px;
             margin-bottom: 20px;
             color: var(--highlight);
-        }
-
-        .ad-content {
-            margin-bottom: 25px;
-        }
-
-        .ad-timer {
-            font-size: 22px;
-            margin-bottom: 25px;
-            color: var(--highlight);
-            font-weight: bold;
-        }
-
-        .ad-close-button {
-            background: linear-gradient(135deg, var(--highlight), #ff7b93);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            padding: 15px 30px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: var(--transition);
-            box-shadow: 0 4px 15px rgba(233, 69, 96, 0.4);
-        }
-
-        .ad-close-button:hover:not(:disabled) {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(233, 69, 96, 0.6);
-        }
-
-        .ad-close-button:disabled {
-            background: var(--text-secondary);
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
+            text-align: center;
         }
 
         /* Login Panel */
@@ -970,6 +947,8 @@
             font-size: 28px;
             margin-bottom: 25px;
             color: var(--highlight);
+            font-weight: 700;
+            letter-spacing: 0.5px;
         }
 
         .login-input {
@@ -981,6 +960,8 @@
             background-color: var(--primary-bg);
             color: var(--text);
             transition: var(--transition);
+            font-weight: 400;
+            letter-spacing: 0.2px;
         }
 
         .login-input:focus {
@@ -996,11 +977,12 @@
             color: white;
             border: none;
             border-radius: 12px;
-            font-weight: bold;
+            font-weight: 700;
             cursor: pointer;
             margin-top: 15px;
             transition: var(--transition);
             box-shadow: 0 4px 15px rgba(233, 69, 96, 0.4);
+            letter-spacing: 0.5px;
         }
 
         .login-button:hover {
@@ -1104,6 +1086,15 @@
             .logo {
                 font-size: 24px;
             }
+            
+            .activity-stats {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .activity-stat-number {
+                font-size: 24px;
+            }
         }
     </style>
 </head>
@@ -1147,8 +1138,8 @@
                     <div class="stat-label">Total Watched</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-number" id="left-this-hour">10</div>
-                    <div class="stat-label">Left This Hour</div>
+                    <div class="stat-number" id="left-today">5</div>
+                    <div class="stat-label">Left Today</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-number" id="reward-per-ad">20.00</div>
@@ -1156,34 +1147,31 @@
                 </div>
             </div>
 
-            <!-- Reward Card -->
-            <div class="reward-card">
-                <div class="reward-label">SHIB Reward per Activity</div>
-                <div class="reward-amount" id="reward-display">20.00 SHIB</div>
-            </div>
-
-            <!-- Activity Status -->
-            <div class="activity-status">
-                <div class="status-message">
-                    <div class="status-icon">
-                        <i class="fas fa-check-circle"></i>
+            <!-- New Activity Section - Like Second Image -->
+            <div class="activity-section">
+                <div class="activity-header">Watch Ads & Earn</div>
+                <div class="activity-stats">
+                    <div class="activity-stat">
+                        <div class="activity-stat-number" id="activity-total-watched">0</div>
+                        <div class="activity-stat-label">Total Watched</div>
                     </div>
-                    <div id="status-text">Ready to earn! Complete activities to earn SHIB</div>
+                    <div class="activity-stat">
+                        <div class="activity-stat-number" id="activity-left-this-hour">5</div>
+                        <div class="activity-stat-label">Left Today</div>
+                    </div>
+                    <div class="activity-stat">
+                        <div class="activity-stat-number" id="activity-reward-per-ad">20.00</div>
+                        <div class="activity-stat-label">Reward/Ad</div>
+                    </div>
                 </div>
-                <div class="progress-bar">
-                    <div class="progress-fill" id="progress-fill"></div>
-                </div>
-                <div style="text-align: center; margin-bottom: 10px; font-size: 12px; color: var(--text-secondary);" id="progress-text">
-                    0/10 activities completed this hour
-                </div>
-                <button id="complete-activity-btn" class="action-button">Complete Activity</button>
+                <button id="watch-ad-button" class="watch-ad-button">Watch Ad Now</button>
             </div>
 
             <!-- Available Tasks -->
             <div class="section-title">Available Tasks</div>
             
             <div id="tasks-container">
-                <!-- Tasks will be loaded here from Firebase -->
+                <div class="spinner"></div>
             </div>
         </div>
 
@@ -1214,7 +1202,7 @@
             <div class="withdraw-history">
                 <div class="history-title">Withdrawal History</div>
                 <div id="withdrawal-history-container">
-                    <!-- Withdrawal history will be loaded here -->
+                    <div class="no-history">No withdrawal history yet.</div>
                 </div>
             </div>
         </div>
@@ -1235,7 +1223,7 @@
             <div class="leaderboard">
                 <div class="leaderboard-title">Leaderboard</div>
                 <div id="leaderboard-container">
-                    <!-- Leaderboard will be loaded here -->
+                    <div class="spinner"></div>
                 </div>
             </div>
         </div>
@@ -1275,6 +1263,7 @@
             <div class="admin-tab" data-tab="tasks">Tasks</div>
             <div class="admin-tab" data-tab="withdrawals">Withdrawals</div>
             <div class="admin-tab" data-tab="settings">Settings</div>
+            <div class="admin-tab" data-tab="ads">Ads Restock</div>
         </div>
 
         <!-- Dashboard Section -->
@@ -1287,8 +1276,8 @@
                         <div class="stat-label">Total Users</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-number" id="total-ads">0</div>
-                        <div class="stat-label">Ads Available</div>
+                        <div class="stat-number" id="daily-ad-limit">5</div>
+                        <div class="stat-label">Daily Ad Limit</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-number" id="pending-withdrawals">0</div>
@@ -1300,7 +1289,7 @@
             <div class="admin-card">
                 <h3>Quick Actions</h3>
                 <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                    <button id="add-ads-btn" class="admin-button">Add Ads</button>
+                    <button id="restock-ads-btn" class="admin-button">Restock All Ads</button>
                     <button id="add-task-btn" class="admin-button">Add Task</button>
                     <button id="view-users-btn" class="admin-button">View Users</button>
                 </div>
@@ -1312,7 +1301,7 @@
             <div class="admin-card">
                 <h3>Manage Tasks</h3>
                 <div id="admin-tasks-container">
-                    <!-- Tasks will be loaded here -->
+                    <div class="no-history">No tasks created yet.</div>
                 </div>
             </div>
 
@@ -1354,14 +1343,14 @@
             <div class="admin-card">
                 <h3>Pending Withdrawals</h3>
                 <div id="pending-withdrawals-container">
-                    <!-- Pending withdrawals will be loaded here -->
+                    <div class="no-history">No pending withdrawals.</div>
                 </div>
             </div>
 
             <div class="admin-card">
                 <h3>Withdrawal History</h3>
                 <div id="admin-withdrawal-history-container">
-                    <!-- Withdrawal history will be loaded here -->
+                    <div class="no-history">No withdrawal history.</div>
                 </div>
             </div>
         </div>
@@ -1376,16 +1365,12 @@
                         <input type="number" id="reward-per-ad" class="admin-input" required>
                     </div>
                     <div class="admin-input-group">
-                        <label class="admin-label">Hourly Ad Limit</label>
-                        <input type="number" id="hourly-ad-limit" class="admin-input" required>
+                        <label class="admin-label">Daily Ad Limit</label>
+                        <input type="number" id="daily-ad-limit" class="admin-input" required>
                     </div>
                     <div class="admin-input-group">
                         <label class="admin-label">Minimum Withdrawal (SHIB)</label>
                         <input type="number" id="min-withdrawal" class="admin-input" required>
-                    </div>
-                    <div class="admin-input-group">
-                        <label class="admin-label">Ads Available</label>
-                        <input type="number" id="ads-available" class="admin-input" required>
                     </div>
                     <div class="admin-input-group">
                         <label class="admin-label">Referral Reward (SHIB)</label>
@@ -1395,22 +1380,43 @@
                 </form>
             </div>
         </div>
-    </div>
 
-    <!-- Ad Modal -->
-    <div id="ad-modal" class="modal-overlay">
-        <div class="ad-modal">
-            <div class="ad-title">Watch Ad to Earn SHIB</div>
-            <div class="ad-content">
-                <p>Please watch this ad for 10 seconds to earn <span id="ad-reward-amount">20</span> SHIB</p>
-                <div class="ad-timer" id="ad-timer">10</div>
-                <!-- Ad container -->
-                <div id="ad-container" style="min-height: 300px; background: rgba(0,0,0,0.2); border-radius: 10px; display: flex; align-items: center; justify-content: center; margin: 20px 0;">
-                    <p>Ad will appear here...</p>
+        <!-- Ads Restock Section -->
+        <div id="admin-ads" class="admin-section">
+            <div class="admin-card">
+                <h3>Ads Restock Management</h3>
+                <p style="margin-bottom: 20px; color: var(--text-secondary);">
+                    Reset ads for all users. This will allow all users to watch ads again today.
+                </p>
+                <button id="restock-all-ads-btn" class="admin-button" style="background: linear-gradient(135deg, var(--success), #6fcf97);">
+                    <i class="fas fa-sync-alt"></i> Restock Ads for All Users
+                </button>
+            </div>
+
+            <div class="admin-card">
+                <h3>Ads Statistics</h3>
+                <div class="stats-container">
+                    <div class="stat-card">
+                        <div class="stat-number" id="total-ads-watched">0</div>
+                        <div class="stat-label">Total Ads Watched</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="users-with-ads-left">0</div>
+                        <div class="stat-label">Users with Ads Left</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="total-ad-rewards">0</div>
+                        <div class="stat-label">Total SHIB Rewarded</div>
+                    </div>
                 </div>
             </div>
-            <button id="ad-close-button" class="ad-close-button" disabled>Close Ad</button>
         </div>
+    </div>
+
+    <!-- Ad Loading Indicator -->
+    <div id="ad-loading" class="ad-loading">
+        <div class="spinner"></div>
+        <div class="ad-loading-text">Loading Ad...</div>
     </div>
 
     <!-- Bottom Navigation -->
@@ -1458,9 +1464,8 @@
         let userData = null;
         let systemSettings = {
             rewardPerAd: 20,
-            hourlyAdLimit: 10,
+            dailyAdLimit: 5,
             minWithdrawal: 3000,
-            adsAvailable: 1000,
             referralReward: 200,
             tasks: []
         };
@@ -1471,10 +1476,8 @@
         const adminPanel = document.getElementById('admin-panel');
         const adminLoginBtn = document.getElementById('admin-login-button');
         const adminLogoutBtn = document.getElementById('admin-logout');
-        const completeActivityBtn = document.getElementById('complete-activity-btn');
-        const adModal = document.getElementById('ad-modal');
-        const adTimer = document.getElementById('ad-timer');
-        const adCloseButton = document.getElementById('ad-close-button');
+        const watchAdButton = document.getElementById('watch-ad-button');
+        const adLoading = document.getElementById('ad-loading');
         const withdrawButton = document.getElementById('withdraw-button');
         const tasksContainer = document.getElementById('tasks-container');
         const adminTasksContainer = document.getElementById('admin-tasks-container');
@@ -1484,6 +1487,12 @@
         const leaderboardContainer = document.getElementById('leaderboard-container');
         const addTaskForm = document.getElementById('add-task-form');
         const systemSettingsForm = document.getElementById('system-settings-form');
+        const restockAllAdsBtn = document.getElementById('restock-all-ads-btn');
+
+        // Real-time listeners
+        let systemSettingsListener = null;
+        let userDataListener = null;
+        let tasksListener = null;
 
         // Platform Detection
         function isTelegramWebApp() {
@@ -1539,6 +1548,7 @@
                 
                 // Load user data from Firebase
                 await loadUserData(currentUser.uid);
+                setupRealTimeListeners(currentUser.uid);
             } else {
                 // Fallback for testing
                 currentUser = {
@@ -1549,11 +1559,38 @@
                 document.getElementById('user-display-name').textContent = currentUser.displayName;
                 document.getElementById('user-display-id').textContent = `ID: ${currentUser.uid}`;
                 await loadUserData(currentUser.uid);
+                setupRealTimeListeners(currentUser.uid);
             }
             
             loginPanel.style.display = 'none';
             userPanel.style.display = 'block';
             adminPanel.style.display = 'none';
+        }
+
+        // Set up real-time listeners
+        function setupRealTimeListeners(userId) {
+            // System settings listener
+            systemSettingsListener = db.collection('systemSettings').doc('settings')
+                .onSnapshot((doc) => {
+                    if (doc.exists) {
+                        systemSettings = doc.data();
+                        updateSystemSettingsUI();
+                        loadTasks();
+                    }
+                }, (error) => {
+                    console.error("Error listening to system settings:", error);
+                });
+
+            // User data listener
+            userDataListener = db.collection('users').doc(userId)
+                .onSnapshot((doc) => {
+                    if (doc.exists) {
+                        userData = doc.data();
+                        updateUserUI();
+                    }
+                }, (error) => {
+                    console.error("Error listening to user data:", error);
+                });
         }
 
         // Load User Data from Firebase
@@ -1563,6 +1600,17 @@
                 
                 if (userDoc.exists) {
                     userData = userDoc.data();
+                    
+                    // Check if we need to reset daily ads
+                    const today = new Date().toDateString();
+                    if (userData.lastAdReset !== today) {
+                        userData.adsToday = 0;
+                        userData.lastAdReset = today;
+                        await db.collection('users').doc(userId).update({
+                            adsToday: 0,
+                            lastAdReset: today
+                        });
+                    }
                 } else {
                     // Initialize new user with 0 balance
                     userData = {
@@ -1570,12 +1618,13 @@
                         balance: 0,
                         totalEarned: 0,
                         adsWatched: 0,
-                        adsThisHour: 0,
+                        adsToday: 0,
                         referralCount: 0,
                         referralCode: `ref${userId}`,
                         tasksCompleted: {},
                         referredBy: null,
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        lastAdReset: new Date().toDateString()
                     };
                     
                     // Check for referral code in URL
@@ -1612,11 +1661,12 @@
                         balance: 0,
                         totalEarned: 0,
                         adsWatched: 0,
-                        adsThisHour: 0,
+                        adsToday: 0,
                         referralCount: 0,
                         referralCode: `ref${userId}`,
                         tasksCompleted: {},
-                        referredBy: null
+                        referredBy: null,
+                        lastAdReset: new Date().toDateString()
                     };
                     localStorage.setItem(`user_${userId}`, JSON.stringify(userData));
                     updateUserUI();
@@ -1627,7 +1677,7 @@
             }
         }
 
-        // Reward referrer with 200 SHIB
+        // Reward referrer with SHIB
         async function rewardReferrer(referralCode) {
             try {
                 // Find user with this referral code in Firebase
@@ -1677,10 +1727,14 @@
             document.getElementById('user-balance').textContent = userData.balance.toLocaleString() + ' SHIB';
             
             document.getElementById('total-watched').textContent = userData.adsWatched;
-            document.getElementById('left-this-hour').textContent = Math.max(0, systemSettings.hourlyAdLimit - userData.adsThisHour);
+            document.getElementById('activity-total-watched').textContent = userData.adsWatched;
             
-            document.getElementById('progress-fill').style.width = `${(userData.adsThisHour / systemSettings.hourlyAdLimit) * 100}%`;
-            document.getElementById('progress-text').textContent = `${userData.adsThisHour}/${systemSettings.hourlyAdLimit} activities completed this hour`;
+            const adsLeft = Math.max(0, systemSettings.dailyAdLimit - userData.adsToday);
+            document.getElementById('left-today').textContent = adsLeft;
+            document.getElementById('activity-left-this-hour').textContent = adsLeft;
+            
+            document.getElementById('reward-per-ad').textContent = systemSettings.rewardPerAd.toFixed(2);
+            document.getElementById('activity-reward-per-ad').textContent = systemSettings.rewardPerAd.toFixed(2);
             
             // Update referral link
             document.getElementById('referral-link').textContent = `https://t.me/RichAirDropBot?start=ref${userData.uid}`;
@@ -1690,12 +1744,12 @@
             }
             
             // Update status message
-            if (userData.adsThisHour >= systemSettings.hourlyAdLimit) {
-                document.getElementById('status-text').textContent = "Hourly limit reached. Come back later!";
-                document.getElementById('complete-activity-btn').disabled = true;
+            if (userData.adsToday >= systemSettings.dailyAdLimit) {
+                watchAdButton.disabled = true;
+                watchAdButton.textContent = "Daily Limit Reached";
             } else {
-                document.getElementById('status-text').textContent = "Ready to earn! Complete activities to earn SHIB";
-                document.getElementById('complete-activity-btn').disabled = false;
+                watchAdButton.disabled = false;
+                watchAdButton.textContent = "Watch Ad Now";
             }
         }
 
@@ -1720,6 +1774,14 @@
             loginPanel.style.display = 'block';
             userPanel.style.display = 'none';
             adminPanel.style.display = 'none';
+            
+            // Clean up real-time listeners
+            if (systemSettingsListener) {
+                systemSettingsListener();
+            }
+            if (userDataListener) {
+                userDataListener();
+            }
         });
 
         // Initialize User Panel
@@ -1735,6 +1797,7 @@
             document.getElementById('user-display-id').textContent = `ID: ${currentUser.uid}`;
             
             loadUserData(currentUser.uid);
+            setupRealTimeListeners(currentUser.uid);
         }
 
         // Initialize Admin Panel
@@ -1744,6 +1807,16 @@
             await loadPendingWithdrawals();
             await loadAdminWithdrawalHistory();
             await loadAdminStats();
+            
+            // Set up real-time listener for system settings in admin panel
+            db.collection('systemSettings').doc('settings')
+                .onSnapshot((doc) => {
+                    if (doc.exists) {
+                        systemSettings = doc.data();
+                        updateSystemSettingsUI();
+                        loadAdminTasks();
+                    }
+                });
             
             // Admin tabs
             const adminTabs = document.querySelectorAll('.admin-tab');
@@ -1789,38 +1862,34 @@
         function updateSystemSettingsUI() {
             if (document.getElementById('reward-per-ad')) {
                 document.getElementById('reward-per-ad').value = systemSettings.rewardPerAd;
-                document.getElementById('hourly-ad-limit').value = systemSettings.hourlyAdLimit;
+                document.getElementById('daily-ad-limit').value = systemSettings.dailyAdLimit;
                 document.getElementById('min-withdrawal').value = systemSettings.minWithdrawal;
-                document.getElementById('ads-available').value = systemSettings.adsAvailable;
                 document.getElementById('referral-reward').value = systemSettings.referralReward;
             }
             
-            if (document.getElementById('total-ads')) {
-                document.getElementById('total-ads').textContent = systemSettings.adsAvailable;
+            if (document.getElementById('daily-ad-limit')) {
+                document.getElementById('daily-ad-limit').textContent = systemSettings.dailyAdLimit;
             }
             
             // Update user panel if it exists
             if (document.getElementById('reward-per-ad')) {
                 document.getElementById('reward-per-ad').textContent = systemSettings.rewardPerAd.toFixed(2);
-                document.getElementById('reward-display').textContent = `${systemSettings.rewardPerAd.toFixed(2)} SHIB`;
+                document.getElementById('activity-reward-per-ad').textContent = systemSettings.rewardPerAd.toFixed(2);
                 document.getElementById('min-withdrawal-amount').textContent = `${systemSettings.minWithdrawal.toLocaleString()} SHIB`;
             }
-            
-            // Update ad reward in modal
-            document.getElementById('ad-reward-amount').textContent = systemSettings.rewardPerAd;
         }
 
         // Load Tasks from system settings
         function loadTasks() {
             tasksContainer.innerHTML = '';
             
-            if (systemSettings.tasks.length === 0) {
+            if (!systemSettings.tasks || systemSettings.tasks.length === 0) {
                 tasksContainer.innerHTML = '<div class="no-history">No tasks available. Check back later!</div>';
                 return;
             }
             
             systemSettings.tasks.forEach(task => {
-                const userCompleted = userData.tasksCompleted[task.id] || 0;
+                const userCompleted = userData.tasksCompleted && userData.tasksCompleted[task.id] ? userData.tasksCompleted[task.id] : 0;
                 const isClaimed = userCompleted >= task.total;
                 
                 const taskElement = document.createElement('div');
@@ -1863,6 +1932,9 @@
             userData.totalEarned += reward;
             
             // Mark task as completed
+            if (!userData.tasksCompleted) {
+                userData.tasksCompleted = {};
+            }
             if (!userData.tasksCompleted[taskId]) {
                 userData.tasksCompleted[taskId] = 0;
             }
@@ -1890,7 +1962,7 @@
         function loadAdminTasks() {
             adminTasksContainer.innerHTML = '';
             
-            if (systemSettings.tasks.length === 0) {
+            if (!systemSettings.tasks || systemSettings.tasks.length === 0) {
                 adminTasksContainer.innerHTML = '<div class="no-history">No tasks created yet.</div>';
                 return;
             }
@@ -2123,49 +2195,48 @@
                     .get();
                 document.getElementById('pending-withdrawals').textContent = pendingWithdrawalsSnapshot.size;
                 
-                document.getElementById('total-ads').textContent = systemSettings.adsAvailable;
+                // Calculate ads statistics
+                let totalAdsWatched = 0;
+                let usersWithAdsLeft = 0;
+                let totalAdRewards = 0;
+                
+                usersSnapshot.forEach(doc => {
+                    const userData = doc.data();
+                    totalAdsWatched += userData.adsWatched || 0;
+                    totalAdRewards += userData.totalEarned || 0;
+                    
+                    if ((userData.adsToday || 0) < systemSettings.dailyAdLimit) {
+                        usersWithAdsLeft++;
+                    }
+                });
+                
+                document.getElementById('total-ads-watched').textContent = totalAdsWatched;
+                document.getElementById('users-with-ads-left').textContent = usersWithAdsLeft;
+                document.getElementById('total-ad-rewards').textContent = totalAdRewards;
+                
+                document.getElementById('daily-ad-limit').textContent = systemSettings.dailyAdLimit;
             } catch (error) {
                 console.error("Error loading admin stats:", error);
                 document.getElementById('total-users').textContent = '0';
-                document.getElementById('total-ads').textContent = systemSettings.adsAvailable;
                 document.getElementById('pending-withdrawals').textContent = '0';
+                document.getElementById('daily-ad-limit').textContent = systemSettings.dailyAdLimit;
             }
         }
 
-        // Complete Activity with Ad
-        completeActivityBtn.addEventListener('click', () => {
-            // Check if user has ads left for this hour
-            if (userData.adsThisHour >= systemSettings.hourlyAdLimit) {
-                alert("You've reached your hourly limit. Please try again later.");
+        // Watch Ad Button
+        watchAdButton.addEventListener('click', () => {
+            // Check if user has ads left for today
+            if (userData.adsToday >= systemSettings.dailyAdLimit) {
+                alert("You've reached your daily limit. Come back tomorrow!");
                 return;
             }
             
-            // Check if there are ads available
-            if (systemSettings.adsAvailable <= 0) {
-                alert("No ads available at the moment. Please try again later.");
-                return;
-            }
+            // Show loading indicator
+            adLoading.classList.add('active');
             
-            // Show ad modal
-            adModal.classList.add('active');
-            
-            // Start countdown
-            let timeLeft = 10;
-            adTimer.textContent = timeLeft;
-            
-            const countdown = setInterval(() => {
-                timeLeft--;
-                adTimer.textContent = timeLeft;
-                
-                if (timeLeft <= 0) {
-                    clearInterval(countdown);
-                    adCloseButton.disabled = false;
-                }
-            }, 1000);
-            
-            // Show interstitial ad using the exact code you provided
+            // Use the ad SDK to show the interstitial
             try {
-                // In-App Interstitial
+                // In-App Interstitial - Fullscreen
                 show_10005454({ 
                     type: 'inApp', 
                     inAppSettings: { 
@@ -2176,35 +2247,67 @@
                         everyPage: false 
                     } 
                 });
+                
+                // Hide loading indicator after 2 seconds (assuming ad is loaded)
+                setTimeout(() => {
+                    adLoading.classList.remove('active');
+                }, 2000);
+                
+                // Reward user after ad completion (simulated with timeout)
+                setTimeout(() => {
+                    rewardUser(systemSettings.rewardPerAd);
+                    alert(`Congratulations! You've earned ${systemSettings.rewardPerAd} SHIB.`);
+                }, 15000); // 15 seconds to simulate ad completion
+                
             } catch (e) {
                 console.log("Ad SDK error:", e);
-                // Fallback to a simple ad simulation
-                document.getElementById('ad-container').innerHTML = `
-                    <div style="text-align: center; padding: 20px;">
-                        <h3>Advertisement</h3>
-                        <p>This is a sample advertisement</p>
-                        <p>Ad would normally play here</p>
-                    </div>
+                // Fallback: If the ad fails, simulate the ad
+                adLoading.classList.remove('active');
+                
+                // Simulate ad with a simple modal
+                const adSimulation = document.createElement('div');
+                adSimulation.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: #000;
+                    color: white;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    align-items: center;
+                    z-index: 1000;
                 `;
+                adSimulation.innerHTML = `
+                    <h2 style="margin-bottom: 20px; color: var(--highlight);">Advertisement</h2>
+                    <p style="margin-bottom: 30px;">This is a simulated ad</p>
+                    <div class="spinner"></div>
+                    <p style="margin-top: 20px;">Ad will complete in 10 seconds</p>
+                    <button id="close-ad" style="margin-top: 30px; padding: 10px 20px; background: var(--highlight); color: white; border: none; border-radius: 5px; cursor: pointer;">Skip Ad</button>
+                `;
+                document.body.appendChild(adSimulation);
+                
+                let timeLeft = 10;
+                const timer = setInterval(() => {
+                    timeLeft--;
+                    if (timeLeft <= 0) {
+                        clearInterval(timer);
+                        document.body.removeChild(adSimulation);
+                        rewardUser(systemSettings.rewardPerAd);
+                        alert(`Congratulations! You've earned ${systemSettings.rewardPerAd} SHIB.`);
+                    }
+                }, 1000);
+                
+                // Add event listener to skip button
+                document.getElementById('close-ad').addEventListener('click', () => {
+                    clearInterval(timer);
+                    document.body.removeChild(adSimulation);
+                    rewardUser(systemSettings.rewardPerAd);
+                    alert(`Congratulations! You've earned ${systemSettings.rewardPerAd} SHIB.`);
+                });
             }
-        });
-
-        // Close Ad Modal
-        adCloseButton.addEventListener('click', () => {
-            adModal.classList.remove('active');
-            adCloseButton.disabled = true;
-            
-            // Reward user
-            rewardUser(systemSettings.rewardPerAd);
-            
-            // Update ads available
-            systemSettings.adsAvailable--;
-            updateSystemSettingsUI();
-            
-            // Save to Firebase
-            saveSystemSettings();
-            
-            alert(`Congratulations! You've earned ${systemSettings.rewardPerAd} SHIB.`);
         });
 
         // Reward User
@@ -2212,7 +2315,7 @@
             userData.balance += amount;
             userData.totalEarned += amount;
             userData.adsWatched++;
-            userData.adsThisHour++;
+            userData.adsToday++;
             updateUserUI();
             
             // Save to Firebase
@@ -2221,7 +2324,7 @@
                     balance: userData.balance,
                     totalEarned: userData.totalEarned,
                     adsWatched: userData.adsWatched,
-                    adsThisHour: userData.adsThisHour
+                    adsToday: userData.adsToday
                 });
             } catch (error) {
                 console.error("Error updating user data:", error);
@@ -2303,6 +2406,9 @@
             };
             
             // Add to system settings
+            if (!systemSettings.tasks) {
+                systemSettings.tasks = [];
+            }
             systemSettings.tasks.push(newTask);
             
             // Save to Firebase
@@ -2315,6 +2421,7 @@
             
             // Reload tasks
             loadAdminTasks();
+            // Tasks will automatically update in user panel via real-time listener
         });
 
         // System Settings Form
@@ -2322,9 +2429,8 @@
             e.preventDefault();
             
             systemSettings.rewardPerAd = parseInt(document.getElementById('reward-per-ad').value);
-            systemSettings.hourlyAdLimit = parseInt(document.getElementById('hourly-ad-limit').value);
+            systemSettings.dailyAdLimit = parseInt(document.getElementById('daily-ad-limit').value);
             systemSettings.minWithdrawal = parseInt(document.getElementById('min-withdrawal').value);
-            systemSettings.adsAvailable = parseInt(document.getElementById('ads-available').value);
             systemSettings.referralReward = parseInt(document.getElementById('referral-reward').value);
             
             // Save to Firebase
@@ -2347,14 +2453,41 @@
             }
         }
 
-        // Add Ads
-        document.getElementById('add-ads-btn').addEventListener('click', async () => {
-            const adsToAdd = prompt('How many ads would you like to add?');
-            if (adsToAdd && !isNaN(adsToAdd)) {
-                systemSettings.adsAvailable += parseInt(adsToAdd);
-                await saveSystemSettings();
-                updateSystemSettingsUI();
-                alert(`${adsToAdd} ads added successfully!`);
+        // Restock Ads for All Users
+        restockAllAdsBtn.addEventListener('click', async () => {
+            if (confirm('Are you sure you want to restock ads for all users? This will reset their daily ad count.')) {
+                try {
+                    const usersSnapshot = await db.collection('users').get();
+                    const today = new Date().toDateString();
+                    
+                    // Use batched writes to update all users
+                    const batch = db.batch();
+                    usersSnapshot.forEach(doc => {
+                        batch.update(doc.ref, {
+                            adsToday: 0,
+                            lastAdReset: today
+                        });
+                    });
+                    
+                    await batch.commit();
+                    alert('Ads restocked for all users successfully!');
+                    
+                    // Also update current user data if they're logged in
+                    if (userData) {
+                        userData.adsToday = 0;
+                        userData.lastAdReset = today;
+                        updateUserUI();
+                        
+                        // Update in Firebase
+                        await db.collection('users').doc(currentUser.uid).update({
+                            adsToday: 0,
+                            lastAdReset: today
+                        });
+                    }
+                } catch (error) {
+                    console.error("Error restocking ads:", error);
+                    alert('Error restocking ads. Please try again. Error: ' + error.message);
+                }
             }
         });
 
@@ -2422,6 +2555,7 @@
                 systemSettings.tasks = systemSettings.tasks.filter(t => t.id !== taskId);
                 await saveSystemSettings();
                 loadAdminTasks();
+                // Tasks will automatically update in user panel via real-time listener
                 alert('Task deleted successfully!');
             }
         }
