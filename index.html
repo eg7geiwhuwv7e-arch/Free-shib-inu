@@ -1113,6 +1113,34 @@
                 font-size: 24px;
             }
         }
+
+        /* Ads Not Available Message */
+        .ads-not-available {
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: var(--shadow);
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .ads-not-available-icon {
+            font-size: 48px;
+            color: var(--warning);
+            margin-bottom: 15px;
+        }
+
+        .ads-not-available-text {
+            font-size: 18px;
+            color: var(--text);
+            margin-bottom: 10px;
+        }
+
+        .ads-not-available-subtext {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
     </style>
 </head>
 <body>
@@ -1167,6 +1195,15 @@
                 </div>
                 <button id="watch-ad-button" class="watch-ad-button">Watch Ad Now</button>
                 <div class="ad-restock-notice">Ads restock every hour. Don't miss it!</div>
+            </div>
+
+            <!-- Ads Not Available Message (Hidden by default) -->
+            <div id="ads-not-available" class="ads-not-available" style="display: none;">
+                <div class="ads-not-available-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="ads-not-available-text">Ads Not Available</div>
+                <div class="ads-not-available-subtext">Please check back later for more ad opportunities</div>
             </div>
 
             <!-- Available Tasks -->
@@ -1499,6 +1536,7 @@
         const systemSettingsForm = document.getElementById('system-settings-form');
         const restockAllAdsBtn = document.getElementById('restock-all-ads-btn');
         const userAvatar = document.getElementById('user-avatar');
+        const adsNotAvailable = document.getElementById('ads-not-available');
 
         // Real-time listeners
         let systemSettingsListener = null;
@@ -1619,14 +1657,7 @@
         // Load User Data from Firebase with localStorage fallback
         async function loadUserData(userId) {
             try {
-                // First try to get from localStorage
-                const storedUserData = localStorage.getItem(`user_${userId}`);
-                if (storedUserData) {
-                    userData = JSON.parse(storedUserData);
-                    updateUserUI();
-                }
-
-                // Then try Firebase
+                // First try to get from Firebase
                 const userDoc = await db.collection('users').doc(userId).get();
                 
                 if (userDoc.exists) {
@@ -1794,9 +1825,11 @@
             if (userData.adsToday >= systemSettings.dailyAdLimit) {
                 watchAdButton.disabled = true;
                 watchAdButton.textContent = "Daily Limit Reached";
+                adsNotAvailable.style.display = 'block';
             } else {
                 watchAdButton.disabled = false;
                 watchAdButton.textContent = "Watch Ad Now";
+                adsNotAvailable.style.display = 'none';
             }
         }
 
@@ -2313,7 +2346,7 @@
             }
         }
 
-        // Watch Ad Button - UPDATED TO ONLY USE MONETAG ADS
+        // Watch Ad Button - UPDATED WITH ACTUAL AD INTEGRATION
         watchAdButton.addEventListener('click', () => {
             // Check if user has ads left for today
             if (userData.adsToday >= systemSettings.dailyAdLimit) {
@@ -2324,9 +2357,9 @@
             // Show loading indicator
             adLoading.classList.add('active');
             
-            // Use the ad SDK to show the interstitial - ONLY MONETAG ADS
+            // Use the ad SDK to show the interstitial
             try {
-                // In-App Interstitial - Fullscreen
+                // Show the actual ad
                 show_10005454({ 
                     type: 'inApp', 
                     inAppSettings: { 
@@ -2343,7 +2376,7 @@
                     adLoading.classList.remove('active');
                 }, 2000);
                 
-                // Reward user after ad completion
+                // Reward user after ad completion (simulated with 15 seconds delay)
                 setTimeout(() => {
                     rewardUser(systemSettings.rewardPerAd);
                     alert(`Congratulations! You've earned ${systemSettings.rewardPerAd} SHIB.`);
@@ -2351,7 +2384,7 @@
                 
             } catch (e) {
                 console.log("Ad SDK error:", e);
-                // If monetag ads fail, just show error and don't fallback to simulation
+                // If ad fails, just show error and don't reward
                 adLoading.classList.remove('active');
                 alert('Error loading ad. Please try again later.');
             }
