@@ -121,6 +121,13 @@
             margin-right: 15px;
             box-shadow: 0 4px 15px rgba(233, 69, 96, 0.3);
             animation: pulse 2s infinite;
+            overflow: hidden;
+        }
+
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
         .user-info {
@@ -532,7 +539,7 @@
             letter-spacing: 0.2px;
         }
 
-        /* Referral Section */
+        /* Referral Section - Updated to match the first image */
         .referral-container {
             background-color: var(--card-bg);
             border-radius: 16px;
@@ -542,6 +549,7 @@
             animation: fadeIn 0.8s ease;
             transition: var(--transition);
             border: 1px solid rgba(255, 255, 255, 0.05);
+            text-align: center;
         }
 
         .referral-container:hover {
@@ -549,12 +557,12 @@
             box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
         }
 
-        .referral-message {
-            text-align: center;
-            margin-bottom: 25px;
-            color: var(--text-secondary);
-            font-weight: 400;
-            letter-spacing: 0.2px;
+        .referral-title {
+            font-size: 22px;
+            margin-bottom: 20px;
+            color: var(--highlight);
+            font-weight: 700;
+            letter-spacing: 0.3px;
         }
 
         .referral-link-container {
@@ -565,6 +573,7 @@
             display: flex;
             align-items: center;
             box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+            text-align: left;
         }
 
         .referral-link {
@@ -593,6 +602,39 @@
         .copy-button:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(15, 52, 96, 0.4);
+        }
+
+        .referral-reward {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: var(--text);
+            font-weight: 600;
+            letter-spacing: 0.3px;
+        }
+
+        .referral-reward span {
+            color: var(--highlight);
+        }
+
+        .total-referrals {
+            font-size: 16px;
+            margin-bottom: 20px;
+            color: var(--text-secondary);
+            font-weight: 500;
+            letter-spacing: 0.2px;
+        }
+
+        .total-referrals span {
+            color: var(--text);
+            font-weight: 700;
+        }
+
+        .referral-message {
+            text-align: center;
+            color: var(--text-secondary);
+            font-style: italic;
+            font-weight: 400;
+            letter-spacing: 0.2px;
         }
 
         .leaderboard {
@@ -656,6 +698,13 @@
             margin-right: 15px;
             font-weight: 700;
             box-shadow: 0 4px 15px rgba(15, 52, 96, 0.3);
+            overflow: hidden;
+        }
+
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
         .user-details {
@@ -1117,7 +1166,7 @@
 
         <!-- User Profile -->
         <div class="user-profile">
-            <div class="avatar">
+            <div class="avatar" id="user-avatar">
                 <i class="fas fa-user"></i>
             </div>
             <div class="user-info">
@@ -1207,16 +1256,20 @@
             </div>
         </div>
 
-        <!-- Invite Section -->
+        <!-- Invite Section - Updated to match first image -->
         <div id="invite-section" class="section">
             <div class="referral-container">
-                <div class="referral-message" id="referral-message">
-                    No referrals yet. Share your link to start earning!
-                </div>
+                <div class="referral-title">Your Referral Link</div>
                 
                 <div class="referral-link-container">
-                    <div class="referral-link" id="referral-link">Loading...</div>
+                    <div class="referral-link" id="referral-link">https://t.me/MYTASKADBOT?start=8054...</div>
                     <button class="copy-button">Copy</button>
+                </div>
+                
+                <div class="referral-reward">Referral Reward <span id="referral-reward-amount">300</span> SHIB</div>
+                <div class="total-referrals">Total Referrals: <span id="total-referrals">0</span></div>
+                <div class="referral-message" id="referral-message">
+                    No referrals yet. Share your link to start earning!
                 </div>
             </div>
 
@@ -1317,21 +1370,25 @@
                         <input type="text" id="task-description" class="admin-input" required>
                     </div>
                     <div class="admin-input-group">
+                        <label class="admin-label">Task Link URL</label>
+                        <input type="url" id="task-link" class="admin-input" placeholder="https://t.me/channel" required>
+                    </div>
+                    <div class="admin-input-group">
                         <label class="admin-label">Reward (SHIB)</label>
                         <input type="number" id="task-reward" class="admin-input" required>
                     </div>
                     <div class="admin-input-group">
                         <label class="admin-label">Task Type</label>
                         <select id="task-type" class="admin-input">
-                            <option value="join">Join</option>
-                            <option value="follow">Follow</option>
-                            <option value="invite">Invite</option>
-                            <option value="visit">Visit</option>
+                            <option value="join">Join Channel</option>
+                            <option value="follow">Follow Account</option>
+                            <option value="invite">Invite Friends</option>
+                            <option value="visit">Visit Website</option>
                         </select>
                     </div>
                     <div class="admin-input-group">
                         <label class="admin-label">Total Required</label>
-                        <input type="number" id="task-total" class="admin-input" value="3" required>
+                        <input type="number" id="task-total" class="admin-input" value="1" required>
                     </div>
                     <button type="submit" class="admin-button">Add Task</button>
                 </form>
@@ -1466,7 +1523,7 @@
             rewardPerAd: 20,
             dailyAdLimit: 5,
             minWithdrawal: 3000,
-            referralReward: 200,
+            referralReward: 300,
             tasks: []
         };
 
@@ -1488,6 +1545,7 @@
         const addTaskForm = document.getElementById('add-task-form');
         const systemSettingsForm = document.getElementById('system-settings-form');
         const restockAllAdsBtn = document.getElementById('restock-all-ads-btn');
+        const userAvatar = document.getElementById('user-avatar');
 
         // Real-time listeners
         let systemSettingsListener = null;
@@ -1528,23 +1586,34 @@
             }
         }
 
-        // Initialize Telegram User
+        // Initialize Telegram User - IMPROVED PROFILE FETCHING
         async function initializeTelegramUser() {
             const tg = window.Telegram.WebApp;
             tg.expand();
             
-            // Get user data from Telegram
+            // Get user data from Telegram WebApp API
             const user = tg.initDataUnsafe.user;
             
             if (user) {
                 currentUser = {
                     uid: user.id.toString(),
                     displayName: `${user.first_name} ${user.last_name || ''}`.trim(),
-                    username: user.username || `user${user.id}`
+                    username: user.username || `user${user.id}`,
+                    photoUrl: user.photo_url || null
                 };
                 
+                // Update user profile with Telegram data
                 document.getElementById('user-display-name').textContent = currentUser.displayName;
                 document.getElementById('user-display-id').textContent = `ID: ${currentUser.uid}`;
+                
+                // Set profile photo if available
+                if (currentUser.photoUrl) {
+                    userAvatar.innerHTML = `<img src="${currentUser.photoUrl}" alt="Profile Photo">`;
+                } else {
+                    // Use first letter of username as fallback
+                    const firstLetter = currentUser.displayName.charAt(0).toUpperCase();
+                    userAvatar.innerHTML = `<span style="font-size: 20px; font-weight: bold;">${firstLetter}</span>`;
+                }
                 
                 // Load user data from Firebase
                 await loadUserData(currentUser.uid);
@@ -1554,7 +1623,8 @@
                 currentUser = {
                     uid: 'tg_user_' + Math.floor(Math.random() * 1000000),
                     displayName: 'Telegram User',
-                    username: 'tguser'
+                    username: 'tguser',
+                    photoUrl: null
                 };
                 document.getElementById('user-display-name').textContent = currentUser.displayName;
                 document.getElementById('user-display-id').textContent = `ID: ${currentUser.uid}`;
@@ -1593,9 +1663,17 @@
                 });
         }
 
-        // Load User Data from Firebase
+        // Load User Data from Firebase with localStorage fallback
         async function loadUserData(userId) {
             try {
+                // First try to get from localStorage
+                const storedUserData = localStorage.getItem(`user_${userId}`);
+                if (storedUserData) {
+                    userData = JSON.parse(storedUserData);
+                    updateUserUI();
+                }
+
+                // Then try Firebase
                 const userDoc = await db.collection('users').doc(userId).get();
                 
                 if (userDoc.exists) {
@@ -1611,6 +1689,9 @@
                             lastAdReset: today
                         });
                     }
+                    
+                    // Update localStorage
+                    localStorage.setItem(`user_${userId}`, JSON.stringify(userData));
                 } else {
                     // Initialize new user with 0 balance
                     userData = {
@@ -1624,7 +1705,10 @@
                         tasksCompleted: {},
                         referredBy: null,
                         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                        lastAdReset: new Date().toDateString()
+                        lastAdReset: new Date().toDateString(),
+                        displayName: currentUser.displayName,
+                        username: currentUser.username,
+                        photoUrl: currentUser.photoUrl
                     };
                     
                     // Check for referral code in URL
@@ -1638,6 +1722,9 @@
                     
                     // Save new user to Firebase
                     await db.collection('users').doc(userId).set(userData);
+                    
+                    // Update localStorage
+                    localStorage.setItem(`user_${userId}`, JSON.stringify(userData));
                 }
                 
                 updateUserUI();
@@ -1666,7 +1753,10 @@
                         referralCode: `ref${userId}`,
                         tasksCompleted: {},
                         referredBy: null,
-                        lastAdReset: new Date().toDateString()
+                        lastAdReset: new Date().toDateString(),
+                        displayName: currentUser.displayName,
+                        username: currentUser.username,
+                        photoUrl: currentUser.photoUrl
                     };
                     localStorage.setItem(`user_${userId}`, JSON.stringify(userData));
                     updateUserUI();
@@ -1696,6 +1786,9 @@
                         balance: referrerData.balance,
                         referralCount: referrerData.referralCount
                     });
+                    
+                    // Update localStorage
+                    localStorage.setItem(`user_${referrerDoc.id}`, JSON.stringify(referrerData));
                     
                     // Update leaderboard
                     loadLeaderboard();
@@ -1736,11 +1829,15 @@
             document.getElementById('reward-per-ad').textContent = systemSettings.rewardPerAd.toFixed(2);
             document.getElementById('activity-reward-per-ad').textContent = systemSettings.rewardPerAd.toFixed(2);
             
-            // Update referral link
-            document.getElementById('referral-link').textContent = `https://t.me/RichAirDropBot?start=ref${userData.uid}`;
+            // Update referral section
+            document.getElementById('referral-link').textContent = `https://t.me/MYTASKADBOT?start=ref${userData.uid}`;
+            document.getElementById('referral-reward-amount').textContent = systemSettings.referralReward;
+            document.getElementById('total-referrals').textContent = userData.referralCount;
             
             if (userData.referralCount > 0) {
                 document.getElementById('referral-message').textContent = `You have ${userData.referralCount} referrals! Keep sharing to earn more.`;
+            } else {
+                document.getElementById('referral-message').textContent = "No referrals yet. Share your link to start earning!";
             }
             
             // Update status message
@@ -1790,7 +1887,8 @@
             currentUser = {
                 uid: 'browser_user_' + Math.floor(Math.random() * 1000000),
                 displayName: 'Browser User',
-                username: 'browseruser'
+                username: 'browseruser',
+                photoUrl: null
             };
             
             document.getElementById('user-display-name').textContent = currentUser.displayName;
@@ -1842,9 +1940,13 @@
                 
                 if (settingsDoc.exists) {
                     systemSettings = settingsDoc.data();
+                    // Update localStorage
+                    localStorage.setItem('systemSettings', JSON.stringify(systemSettings));
                 } else {
                     // Create default settings in Firebase
                     await db.collection('systemSettings').doc('settings').set(systemSettings);
+                    // Update localStorage
+                    localStorage.setItem('systemSettings', JSON.stringify(systemSettings));
                 }
             } catch (error) {
                 console.error("Error loading system settings:", error);
@@ -1876,10 +1978,11 @@
                 document.getElementById('reward-per-ad').textContent = systemSettings.rewardPerAd.toFixed(2);
                 document.getElementById('activity-reward-per-ad').textContent = systemSettings.rewardPerAd.toFixed(2);
                 document.getElementById('min-withdrawal-amount').textContent = `${systemSettings.minWithdrawal.toLocaleString()} SHIB`;
+                document.getElementById('referral-reward-amount').textContent = systemSettings.referralReward;
             }
         }
 
-        // Load Tasks from system settings
+        // Load Tasks from system settings - UPDATED WITH LINK SUPPORT
         function loadTasks() {
             tasksContainer.innerHTML = '';
             
@@ -1909,21 +2012,46 @@
                         </div>
                         <div class="progress-text">${userCompleted}/${task.total}</div>
                     </div>
-                    <button class="claim-button" ${isClaimed ? 'disabled' : ''}>${isClaimed ? 'Claimed' : 'Claim'}</button>
+                    <button class="claim-button" ${isClaimed ? 'disabled' : ''} data-task-id="${task.id}" data-task-link="${task.link || ''}">
+                        ${isClaimed ? 'Claimed' : (task.link ? 'Open Link & Claim' : 'Claim')}
+                    </button>
                 `;
                 
                 // Add event listener for claim button
                 const claimBtn = taskElement.querySelector('.claim-button');
                 if (!isClaimed) {
                     claimBtn.addEventListener('click', () => {
-                        claimTaskReward(task.id, task.reward);
-                        claimBtn.disabled = true;
-                        claimBtn.textContent = 'Claimed';
+                        handleTaskClaim(task.id, task.reward, task.link);
                     });
                 }
                 
                 tasksContainer.appendChild(taskElement);
             });
+        }
+
+        // Handle Task Claim with Link Support
+        async function handleTaskClaim(taskId, reward, taskLink) {
+            // If task has a link, open it in Telegram
+            if (taskLink && isTelegramWebApp()) {
+                // Open link in Telegram
+                window.Telegram.WebApp.openLink(taskLink);
+                
+                // Wait a moment for the user to potentially complete the task
+                setTimeout(async () => {
+                    await claimTaskReward(taskId, reward);
+                }, 2000);
+            } else if (taskLink) {
+                // For browser, open in new tab
+                window.open(taskLink, '_blank');
+                
+                // Wait a moment for the user to potentially complete the task
+                setTimeout(async () => {
+                    await claimTaskReward(taskId, reward);
+                }, 2000);
+            } else {
+                // No link, just claim the reward
+                await claimTaskReward(taskId, reward);
+            }
         }
 
         // Claim Task Reward
@@ -1949,6 +2077,8 @@
                     totalEarned: userData.totalEarned,
                     tasksCompleted: userData.tasksCompleted
                 });
+                // Update localStorage
+                localStorage.setItem(`user_${currentUser.uid}`, JSON.stringify(userData));
             } catch (error) {
                 console.error("Error updating user data:", error);
                 // Fallback to localStorage
@@ -1956,9 +2086,12 @@
             }
             
             alert(`Congratulations! You've claimed ${reward} SHIB.`);
+            
+            // Reload tasks to update UI
+            loadTasks();
         }
 
-        // Load Admin Tasks
+        // Load Admin Tasks - UPDATED WITH LINK SUPPORT
         function loadAdminTasks() {
             adminTasksContainer.innerHTML = '';
             
@@ -1974,7 +2107,10 @@
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <div>
                             <div style="font-weight: bold;">${task.title}</div>
-                            <div style="font-size: 14px; color: var(--text-secondary);">Reward: ${task.reward} SHIB • Type: ${task.type}</div>
+                            <div style="font-size: 14px; color: var(--text-secondary);">
+                                Reward: ${task.reward} SHIB • Type: ${task.type}
+                                ${task.link ? `<br>Link: ${task.link.substring(0, 30)}...` : ''}
+                            </div>
                         </div>
                         <div>
                             <button class="admin-button" onclick="editTask('${task.id}')">Edit</button>
@@ -2163,7 +2299,12 @@
                         userElement.className = 'leaderboard-item';
                         userElement.innerHTML = `
                             <div class="rank">${index + 1}</div>
-                            <div class="user-avatar">${user.displayName ? user.displayName.charAt(0).toUpperCase() : 'U'}</div>
+                            <div class="user-avatar">
+                                ${user.photoUrl ? 
+                                    `<img src="${user.photoUrl}" alt="Profile Photo">` : 
+                                    user.displayName ? user.displayName.charAt(0).toUpperCase() : 'U'
+                                }
+                            </div>
                             <div class="user-details">
                                 <div class="user-name">${user.displayName || 'User'}</div>
                                 <div class="user-id">ID: ${user.uid.substring(0, 8)}...</div>
@@ -2223,7 +2364,7 @@
             }
         }
 
-        // Watch Ad Button
+        // Watch Ad Button - UPDATED TO ONLY USE MONETAG ADS
         watchAdButton.addEventListener('click', () => {
             // Check if user has ads left for today
             if (userData.adsToday >= systemSettings.dailyAdLimit) {
@@ -2234,7 +2375,7 @@
             // Show loading indicator
             adLoading.classList.add('active');
             
-            // Use the ad SDK to show the interstitial
+            // Use the ad SDK to show the interstitial - ONLY MONETAG ADS
             try {
                 // In-App Interstitial - Fullscreen
                 show_10005454({ 
@@ -2253,7 +2394,7 @@
                     adLoading.classList.remove('active');
                 }, 2000);
                 
-                // Reward user after ad completion (simulated with timeout)
+                // Reward user after ad completion
                 setTimeout(() => {
                     rewardUser(systemSettings.rewardPerAd);
                     alert(`Congratulations! You've earned ${systemSettings.rewardPerAd} SHIB.`);
@@ -2261,52 +2402,9 @@
                 
             } catch (e) {
                 console.log("Ad SDK error:", e);
-                // Fallback: If the ad fails, simulate the ad
+                // If monetag ads fail, just show error and don't fallback to simulation
                 adLoading.classList.remove('active');
-                
-                // Simulate ad with a simple modal
-                const adSimulation = document.createElement('div');
-                adSimulation.style.cssText = `
-                    position: fixed;
-                    top: 0;
-                    left: 0;
-                    width: 100%;
-                    height: 100%;
-                    background: #000;
-                    color: white;
-                    display: flex;
-                    flex-direction: column;
-                    justify-content: center;
-                    align-items: center;
-                    z-index: 1000;
-                `;
-                adSimulation.innerHTML = `
-                    <h2 style="margin-bottom: 20px; color: var(--highlight);">Advertisement</h2>
-                    <p style="margin-bottom: 30px;">This is a simulated ad</p>
-                    <div class="spinner"></div>
-                    <p style="margin-top: 20px;">Ad will complete in 10 seconds</p>
-                    <button id="close-ad" style="margin-top: 30px; padding: 10px 20px; background: var(--highlight); color: white; border: none; border-radius: 5px; cursor: pointer;">Skip Ad</button>
-                `;
-                document.body.appendChild(adSimulation);
-                
-                let timeLeft = 10;
-                const timer = setInterval(() => {
-                    timeLeft--;
-                    if (timeLeft <= 0) {
-                        clearInterval(timer);
-                        document.body.removeChild(adSimulation);
-                        rewardUser(systemSettings.rewardPerAd);
-                        alert(`Congratulations! You've earned ${systemSettings.rewardPerAd} SHIB.`);
-                    }
-                }, 1000);
-                
-                // Add event listener to skip button
-                document.getElementById('close-ad').addEventListener('click', () => {
-                    clearInterval(timer);
-                    document.body.removeChild(adSimulation);
-                    rewardUser(systemSettings.rewardPerAd);
-                    alert(`Congratulations! You've earned ${systemSettings.rewardPerAd} SHIB.`);
-                });
+                alert('Error loading ad. Please try again later.');
             }
         });
 
@@ -2326,6 +2424,8 @@
                     adsWatched: userData.adsWatched,
                     adsToday: userData.adsToday
                 });
+                // Update localStorage
+                localStorage.setItem(`user_${currentUser.uid}`, JSON.stringify(userData));
             } catch (error) {
                 console.error("Error updating user data:", error);
                 // Fallback to localStorage
@@ -2369,6 +2469,9 @@
                     balance: userData.balance
                 });
                 
+                // Update localStorage
+                localStorage.setItem(`user_${currentUser.uid}`, JSON.stringify(userData));
+                
                 updateUserUI();
                 
                 alert(`Withdrawal request for ${amount} SHIB to ${address} has been submitted. It will be processed within 24 hours.`);
@@ -2385,12 +2488,13 @@
             }
         }
 
-        // Add Task Form
+        // Add Task Form - UPDATED WITH LINK SUPPORT
         addTaskForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             
             const title = document.getElementById('task-title').value;
             const description = document.getElementById('task-description').value;
+            const link = document.getElementById('task-link').value;
             const reward = parseInt(document.getElementById('task-reward').value);
             const type = document.getElementById('task-type').value;
             const total = parseInt(document.getElementById('task-total').value);
@@ -2400,6 +2504,7 @@
                 id: 'task_' + Date.now(),
                 title: title,
                 description: description,
+                link: link,
                 reward: reward,
                 type: type,
                 total: total
@@ -2446,6 +2551,8 @@
         async function saveSystemSettings() {
             try {
                 await db.collection('systemSettings').doc('settings').set(systemSettings);
+                // Update localStorage
+                localStorage.setItem('systemSettings', JSON.stringify(systemSettings));
             } catch (error) {
                 console.error("Error saving system settings:", error);
                 // Fallback to localStorage
@@ -2483,6 +2590,8 @@
                             adsToday: 0,
                             lastAdReset: today
                         });
+                        // Update localStorage
+                        localStorage.setItem(`user_${currentUser.uid}`, JSON.stringify(userData));
                     }
                 } catch (error) {
                     console.error("Error restocking ads:", error);
@@ -2541,6 +2650,7 @@
             if (task) {
                 document.getElementById('task-title').value = task.title;
                 document.getElementById('task-description').value = task.description;
+                document.getElementById('task-link').value = task.link || '';
                 document.getElementById('task-reward').value = task.reward;
                 document.getElementById('task-type').value = task.type;
                 document.getElementById('task-total').value = task.total;
@@ -2592,6 +2702,12 @@
                     await db.collection('users').doc(withdrawalData.userId).update({
                         balance: userData.balance + withdrawalData.amount
                     });
+                    
+                    // Update localStorage
+                    localStorage.setItem(`user_${withdrawalData.userId}`, JSON.stringify({
+                        ...userData,
+                        balance: userData.balance + withdrawalData.amount
+                    }));
                     
                     // Update withdrawal status
                     await db.collection('withdrawals').doc(withdrawalId).update({
