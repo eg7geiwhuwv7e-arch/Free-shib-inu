@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>RichAirDrop - Earn SHIB Daily</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
@@ -31,6 +31,12 @@
             padding: 0;
             box-sizing: border-box;
             font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
         }
 
         body {
@@ -41,6 +47,8 @@
             background-image: 
                 radial-gradient(circle at 10% 20%, rgba(233, 69, 96, 0.1) 0%, transparent 20%),
                 radial-gradient(circle at 90% 80%, rgba(15, 52, 96, 0.1) 0%, transparent 20%);
+            touch-action: pan-y;
+            overflow-x: hidden;
         }
 
         .container {
@@ -90,7 +98,7 @@
             letter-spacing: 0.3px;
         }
 
-        /* User Profile */
+        /* User Profile - Updated to match second image */
         .user-profile {
             display: flex;
             align-items: center;
@@ -157,50 +165,6 @@
             color: var(--highlight);
             text-shadow: 0 2px 10px rgba(233, 69, 96, 0.3);
             letter-spacing: 0.3px;
-        }
-
-        /* Stats Cards - New Layout */
-        .stats-container {
-            display: flex;
-            justify-content: space-between;
-            gap: 15px;
-            margin-bottom: 25px;
-        }
-
-        .stat-card {
-            background-color: var(--card-bg);
-            padding: 20px;
-            border-radius: 16px;
-            text-align: center;
-            box-shadow: var(--shadow);
-            transition: var(--transition);
-            animation: fadeInUp 0.8s ease;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            flex: 1;
-        }
-
-        .stat-card:nth-child(1) { animation-delay: 0.1s; }
-        .stat-card:nth-child(2) { animation-delay: 0.2s; }
-        .stat-card:nth-child(3) { animation-delay: 0.3s; }
-
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
-        }
-
-        .stat-number {
-            font-size: 24px;
-            font-weight: 700;
-            margin-bottom: 8px;
-            color: var(--highlight);
-            letter-spacing: 0.3px;
-        }
-
-        .stat-label {
-            font-size: 13px;
-            color: var(--text-secondary);
-            font-weight: 400;
-            letter-spacing: 0.2px;
         }
 
         /* New Activity Section - Like Second Image */
@@ -299,6 +263,14 @@
 
         .watch-ad-button:not(:disabled):hover::after {
             animation: shine 1.5s;
+        }
+
+        .ad-restock-notice {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 14px;
+            color: var(--text-secondary);
+            font-style: italic;
         }
 
         /* Task Cards */
@@ -1116,10 +1088,6 @@
                 padding: 10px;
             }
             
-            .stats-container {
-                grid-template-columns: 1fr;
-            }
-            
             .admin-table {
                 font-size: 14px;
             }
@@ -1164,7 +1132,7 @@
             <div class="tagline">Earn SHIB Daily</div>
         </div>
 
-        <!-- User Profile -->
+        <!-- User Profile - Updated to match second image -->
         <div class="user-profile">
             <div class="avatar" id="user-avatar">
                 <i class="fas fa-user"></i>
@@ -1180,22 +1148,6 @@
 
         <!-- Task Section -->
         <div id="task-section" class="section active">
-            <!-- Stats Cards -->
-            <div class="stats-container">
-                <div class="stat-card">
-                    <div class="stat-number" id="total-watched">0</div>
-                    <div class="stat-label">Total Watched</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number" id="left-today">5</div>
-                    <div class="stat-label">Left Today</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number" id="reward-per-ad">20.00</div>
-                    <div class="stat-label">Reward/Ad</div>
-                </div>
-            </div>
-
             <!-- New Activity Section - Like Second Image -->
             <div class="activity-section">
                 <div class="activity-header">Watch Ads & Earn</div>
@@ -1205,7 +1157,7 @@
                         <div class="activity-stat-label">Total Watched</div>
                     </div>
                     <div class="activity-stat">
-                        <div class="activity-stat-number" id="activity-left-this-hour">5</div>
+                        <div class="activity-stat-number" id="activity-left-today">3</div>
                         <div class="activity-stat-label">Left Today</div>
                     </div>
                     <div class="activity-stat">
@@ -1214,6 +1166,7 @@
                     </div>
                 </div>
                 <button id="watch-ad-button" class="watch-ad-button">Watch Ad Now</button>
+                <div class="ad-restock-notice">Ads restock every hour. Don't miss it!</div>
             </div>
 
             <!-- Available Tasks -->
@@ -1323,16 +1276,16 @@
         <div id="admin-dashboard" class="admin-section active">
             <div class="admin-card">
                 <h3>System Overview</h3>
-                <div class="stats-container">
-                    <div class="stat-card">
+                <div class="stats-container" style="display: flex; justify-content: space-between; gap: 15px;">
+                    <div class="stat-card" style="background-color: var(--card-bg); padding: 20px; border-radius: 16px; text-align: center; flex: 1;">
                         <div class="stat-number" id="total-users">0</div>
                         <div class="stat-label">Total Users</div>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-number" id="daily-ad-limit">5</div>
+                    <div class="stat-card" style="background-color: var(--card-bg); padding: 20px; border-radius: 16px; text-align: center; flex: 1;">
+                        <div class="stat-number" id="daily-ad-limit">3</div>
                         <div class="stat-label">Daily Ad Limit</div>
                     </div>
-                    <div class="stat-card">
+                    <div class="stat-card" style="background-color: var(--card-bg); padding: 20px; border-radius: 16px; text-align: center; flex: 1;">
                         <div class="stat-number" id="pending-withdrawals">0</div>
                         <div class="stat-label">Pending Withdrawals</div>
                     </div>
@@ -1452,16 +1405,16 @@
 
             <div class="admin-card">
                 <h3>Ads Statistics</h3>
-                <div class="stats-container">
-                    <div class="stat-card">
+                <div class="stats-container" style="display: flex; justify-content: space-between; gap: 15px;">
+                    <div class="stat-card" style="background-color: var(--card-bg); padding: 20px; border-radius: 16px; text-align: center; flex: 1;">
                         <div class="stat-number" id="total-ads-watched">0</div>
                         <div class="stat-label">Total Ads Watched</div>
                     </div>
-                    <div class="stat-card">
+                    <div class="stat-card" style="background-color: var(--card-bg); padding: 20px; border-radius: 16px; text-align: center; flex: 1;">
                         <div class="stat-number" id="users-with-ads-left">0</div>
                         <div class="stat-label">Users with Ads Left</div>
                     </div>
-                    <div class="stat-card">
+                    <div class="stat-card" style="background-color: var(--card-bg); padding: 20px; border-radius: 16px; text-align: center; flex: 1;">
                         <div class="stat-number" id="total-ad-rewards">0</div>
                         <div class="stat-label">Total SHIB Rewarded</div>
                     </div>
@@ -1521,7 +1474,7 @@
         let userData = null;
         let systemSettings = {
             rewardPerAd: 20,
-            dailyAdLimit: 5,
+            dailyAdLimit: 3, // Changed from 5 to 3
             minWithdrawal: 3000,
             referralReward: 300,
             tasks: []
@@ -1819,14 +1772,11 @@
         function updateUserUI() {
             document.getElementById('user-balance').textContent = userData.balance.toLocaleString() + ' SHIB';
             
-            document.getElementById('total-watched').textContent = userData.adsWatched;
             document.getElementById('activity-total-watched').textContent = userData.adsWatched;
             
             const adsLeft = Math.max(0, systemSettings.dailyAdLimit - userData.adsToday);
-            document.getElementById('left-today').textContent = adsLeft;
-            document.getElementById('activity-left-this-hour').textContent = adsLeft;
+            document.getElementById('activity-left-today').textContent = adsLeft;
             
-            document.getElementById('reward-per-ad').textContent = systemSettings.rewardPerAd.toFixed(2);
             document.getElementById('activity-reward-per-ad').textContent = systemSettings.rewardPerAd.toFixed(2);
             
             // Update referral section
@@ -1974,8 +1924,7 @@
             }
             
             // Update user panel if it exists
-            if (document.getElementById('reward-per-ad')) {
-                document.getElementById('reward-per-ad').textContent = systemSettings.rewardPerAd.toFixed(2);
+            if (document.getElementById('activity-reward-per-ad')) {
                 document.getElementById('activity-reward-per-ad').textContent = systemSettings.rewardPerAd.toFixed(2);
                 document.getElementById('min-withdrawal-amount').textContent = `${systemSettings.minWithdrawal.toLocaleString()} SHIB`;
                 document.getElementById('referral-reward-amount').textContent = systemSettings.referralReward;
