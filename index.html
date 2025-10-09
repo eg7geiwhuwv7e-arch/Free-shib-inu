@@ -1141,6 +1141,95 @@
             font-size: 14px;
             color: var(--text-secondary);
         }
+
+        /* Profile Section */
+        .profile-section {
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: var(--shadow);
+            animation: fadeIn 0.8s ease;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), var(--highlight));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 20px;
+            font-size: 30px;
+            box-shadow: 0 4px 15px rgba(233, 69, 96, 0.3);
+            overflow: hidden;
+        }
+
+        .profile-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .profile-info {
+            flex: 1;
+        }
+
+        .profile-name {
+            font-weight: 700;
+            font-size: 22px;
+            margin-bottom: 5px;
+            letter-spacing: 0.3px;
+        }
+
+        .profile-username {
+            font-size: 16px;
+            color: var(--text-secondary);
+            margin-bottom: 5px;
+            font-weight: 400;
+            letter-spacing: 0.2px;
+        }
+
+        .profile-id {
+            font-size: 14px;
+            color: var(--text-secondary);
+            font-weight: 300;
+            letter-spacing: 0.2px;
+        }
+
+        .profile-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 25px;
+        }
+
+        .profile-stat {
+            text-align: center;
+            flex: 1;
+        }
+
+        .profile-stat-number {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 5px;
+            color: var(--highlight);
+            letter-spacing: 0.3px;
+        }
+
+        .profile-stat-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            font-weight: 400;
+            letter-spacing: 0.2px;
+        }
     </style>
 </head>
 <body>
@@ -1214,6 +1303,49 @@
             </div>
         </div>
 
+        <!-- Profile Section -->
+        <div id="profile-section" class="section">
+            <div class="profile-section">
+                <div class="profile-header">
+                    <div class="profile-avatar" id="profile-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="profile-info">
+                        <div class="profile-name" id="profile-name">Loading...</div>
+                        <div class="profile-username" id="profile-username">@username</div>
+                        <div class="profile-id" id="profile-id">ID: Loading...</div>
+                    </div>
+                </div>
+                <div class="profile-stats">
+                    <div class="profile-stat">
+                        <div class="profile-stat-number" id="profile-total-earned">0</div>
+                        <div class="profile-stat-label">Total Earned</div>
+                    </div>
+                    <div class="profile-stat">
+                        <div class="profile-stat-number" id="profile-ads-watched">0</div>
+                        <div class="profile-stat-label">Ads Watched</div>
+                    </div>
+                    <div class="profile-stat">
+                        <div class="profile-stat-number" id="profile-referrals">0</div>
+                        <div class="profile-stat-label">Referrals</div>
+                    </div>
+                </div>
+                <div class="section-title">Account Details</div>
+                <div class="input-group">
+                    <label class="input-label">Telegram User ID</label>
+                    <input type="text" id="profile-user-id" class="input-field" readonly>
+                </div>
+                <div class="input-group">
+                    <label class="input-label">Username</label>
+                    <input type="text" id="profile-username-field" class="input-field" readonly>
+                </div>
+                <div class="input-group">
+                    <label class="input-label">Join Date</label>
+                    <input type="text" id="profile-join-date" class="input-field" readonly>
+                </div>
+            </div>
+        </div>
+
         <!-- Withdraw Section -->
         <div id="withdraw-section" class="section">
             <div class="withdraw-container">
@@ -1281,17 +1413,6 @@
                 </div>
             </div>
         </div>
-
-        <!-- My Task Section (Placeholder) -->
-        <div id="mytask-section" class="section">
-            <div class="section-title">My Task</div>
-            <div class="task-card">
-                <div style="text-align: center; padding: 40px 20px; color: var(--text-secondary);">
-                    <i class="fas fa-tasks" style="font-size: 48px; margin-bottom: 15px;"></i>
-                    <div>Personal task management coming soon</div>
-                </div>
-            </div>
-        </div>
     </div>
 
     <!-- Admin Panel -->
@@ -1307,6 +1428,7 @@
             <div class="admin-tab" data-tab="withdrawals">Withdrawals</div>
             <div class="admin-tab" data-tab="settings">Settings</div>
             <div class="admin-tab" data-tab="ads">Ads Restock</div>
+            <div class="admin-tab" data-tab="users">Users</div>
         </div>
 
         <!-- Dashboard Section -->
@@ -1458,6 +1580,16 @@
                 </div>
             </div>
         </div>
+
+        <!-- Users Section -->
+        <div id="admin-users" class="admin-section">
+            <div class="admin-card">
+                <h3>All Users</h3>
+                <div id="admin-users-container">
+                    <div class="no-history">No users found.</div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Ad Loading Indicator -->
@@ -1472,9 +1604,9 @@
             <i class="fas fa-tasks nav-icon"></i>
             <span>TASK</span>
         </a>
-        <a href="#" class="nav-item" data-section="cards-section">
-            <i class="fas fa-id-card nav-icon"></i>
-            <span>CARDS</span>
+        <a href="#" class="nav-item" data-section="profile-section">
+            <i class="fas fa-user nav-icon"></i>
+            <span>PROFILE</span>
         </a>
         <a href="#" class="nav-item" data-section="invite-section">
             <i class="fas fa-user-plus nav-icon"></i>
@@ -1484,9 +1616,9 @@
             <i class="fas fa-wallet nav-icon"></i>
             <span>WITHDRAW</span>
         </a>
-        <a href="#" class="nav-item" data-section="mytask-section">
-            <i class="fas fa-user nav-icon"></i>
-            <span>MY TASK</span>
+        <a href="#" class="nav-item" data-section="cards-section">
+            <i class="fas fa-id-card nav-icon"></i>
+            <span>CARDS</span>
         </a>
     </div>
 
@@ -1511,7 +1643,7 @@
         let userData = null;
         let systemSettings = {
             rewardPerAd: 20,
-            dailyAdLimit: 3, // Changed from 5 to 3
+            dailyAdLimit: 3,
             minWithdrawal: 3000,
             referralReward: 300,
             tasks: []
@@ -1537,6 +1669,7 @@
         const restockAllAdsBtn = document.getElementById('restock-all-ads-btn');
         const userAvatar = document.getElementById('user-avatar');
         const adsNotAvailable = document.getElementById('ads-not-available');
+        const adminUsersContainer = document.getElementById('admin-users-container');
 
         // Real-time listeners
         let systemSettingsListener = null;
@@ -1577,7 +1710,7 @@
             }
         }
 
-        // Initialize Telegram User - IMPROVED PROFILE FETCHING
+        // Initialize Telegram User - ENHANCED PROFILE FETCHING
         async function initializeTelegramUser() {
             const tg = window.Telegram.WebApp;
             tg.expand();
@@ -1590,20 +1723,31 @@
                     uid: user.id.toString(),
                     displayName: `${user.first_name} ${user.last_name || ''}`.trim(),
                     username: user.username || `user${user.id}`,
-                    photoUrl: user.photo_url || null
+                    photoUrl: user.photo_url || null,
+                    languageCode: user.language_code || 'en'
                 };
                 
                 // Update user profile with Telegram data
                 document.getElementById('user-display-name').textContent = currentUser.displayName;
                 document.getElementById('user-display-id').textContent = `ID: ${currentUser.uid}`;
                 
+                // Update profile section
+                document.getElementById('profile-name').textContent = currentUser.displayName;
+                document.getElementById('profile-username').textContent = `@${currentUser.username}`;
+                document.getElementById('profile-id').textContent = `ID: ${currentUser.uid}`;
+                document.getElementById('profile-user-id').value = currentUser.uid;
+                document.getElementById('profile-username-field').value = currentUser.username;
+                document.getElementById('profile-join-date').value = new Date().toLocaleDateString();
+                
                 // Set profile photo if available
                 if (currentUser.photoUrl) {
                     userAvatar.innerHTML = `<img src="${currentUser.photoUrl}" alt="Profile Photo">`;
+                    document.getElementById('profile-avatar').innerHTML = `<img src="${currentUser.photoUrl}" alt="Profile Photo">`;
                 } else {
                     // Use first letter of username as fallback
                     const firstLetter = currentUser.displayName.charAt(0).toUpperCase();
                     userAvatar.innerHTML = `<span style="font-size: 20px; font-weight: bold;">${firstLetter}</span>`;
+                    document.getElementById('profile-avatar').innerHTML = `<span style="font-size: 30px; font-weight: bold;">${firstLetter}</span>`;
                 }
                 
                 // Load user data from Firebase
@@ -1615,10 +1759,19 @@
                     uid: 'tg_user_' + Math.floor(Math.random() * 1000000),
                     displayName: 'Telegram User',
                     username: 'tguser',
-                    photoUrl: null
+                    photoUrl: null,
+                    languageCode: 'en'
                 };
+                
                 document.getElementById('user-display-name').textContent = currentUser.displayName;
                 document.getElementById('user-display-id').textContent = `ID: ${currentUser.uid}`;
+                document.getElementById('profile-name').textContent = currentUser.displayName;
+                document.getElementById('profile-username').textContent = `@${currentUser.username}`;
+                document.getElementById('profile-id').textContent = `ID: ${currentUser.uid}`;
+                document.getElementById('profile-user-id').value = currentUser.uid;
+                document.getElementById('profile-username-field').value = currentUser.username;
+                document.getElementById('profile-join-date').value = new Date().toLocaleDateString();
+                
                 await loadUserData(currentUser.uid);
                 setupRealTimeListeners(currentUser.uid);
             }
@@ -1692,7 +1845,9 @@
                         lastAdReset: new Date().toDateString(),
                         displayName: currentUser.displayName,
                         username: currentUser.username,
-                        photoUrl: currentUser.photoUrl
+                        photoUrl: currentUser.photoUrl,
+                        languageCode: currentUser.languageCode,
+                        lastLogin: new Date().toISOString()
                     };
                     
                     // Check for referral code in URL
@@ -1740,7 +1895,9 @@
                         lastAdReset: new Date().toDateString(),
                         displayName: currentUser.displayName,
                         username: currentUser.username,
-                        photoUrl: currentUser.photoUrl
+                        photoUrl: currentUser.photoUrl,
+                        languageCode: currentUser.languageCode,
+                        lastLogin: new Date().toISOString()
                     };
                     localStorage.setItem(`user_${userId}`, JSON.stringify(userData));
                     updateUserUI();
@@ -1821,6 +1978,11 @@
                 document.getElementById('referral-message').textContent = "No referrals yet. Share your link to start earning!";
             }
             
+            // Update profile section
+            document.getElementById('profile-total-earned').textContent = userData.totalEarned.toLocaleString();
+            document.getElementById('profile-ads-watched').textContent = userData.adsWatched;
+            document.getElementById('profile-referrals').textContent = userData.referralCount;
+            
             // Update status message
             if (userData.adsToday >= systemSettings.dailyAdLimit) {
                 watchAdButton.disabled = true;
@@ -1871,11 +2033,18 @@
                 uid: 'browser_user_' + Math.floor(Math.random() * 1000000),
                 displayName: 'Browser User',
                 username: 'browseruser',
-                photoUrl: null
+                photoUrl: null,
+                languageCode: 'en'
             };
             
             document.getElementById('user-display-name').textContent = currentUser.displayName;
             document.getElementById('user-display-id').textContent = `ID: ${currentUser.uid}`;
+            document.getElementById('profile-name').textContent = currentUser.displayName;
+            document.getElementById('profile-username').textContent = `@${currentUser.username}`;
+            document.getElementById('profile-id').textContent = `ID: ${currentUser.uid}`;
+            document.getElementById('profile-user-id').value = currentUser.uid;
+            document.getElementById('profile-username-field').value = currentUser.username;
+            document.getElementById('profile-join-date').value = new Date().toLocaleDateString();
             
             loadUserData(currentUser.uid);
             setupRealTimeListeners(currentUser.uid);
@@ -1888,6 +2057,7 @@
             await loadPendingWithdrawals();
             await loadAdminWithdrawalHistory();
             await loadAdminStats();
+            await loadAllUsers();
             
             // Set up real-time listener for system settings in admin panel
             db.collection('systemSettings').doc('settings')
@@ -1912,8 +2082,57 @@
                     // Add active class to clicked tab and corresponding section
                     tab.classList.add('active');
                     document.getElementById(`admin-${tabName}`).classList.add('active');
+                    
+                    // Load users if users tab is clicked
+                    if (tabName === 'users') {
+                        loadAllUsers();
+                    }
                 });
             });
+        }
+
+        // Load All Users for Admin
+        async function loadAllUsers() {
+            try {
+                const usersSnapshot = await db.collection('users').orderBy('createdAt', 'desc').limit(50).get();
+                
+                const users = [];
+                usersSnapshot.forEach(doc => {
+                    const data = doc.data();
+                    users.push({
+                        id: doc.id,
+                        ...data,
+                        joinDate: data.createdAt ? data.createdAt.toDate().toLocaleDateString() : 'Unknown'
+                    });
+                });
+                
+                adminUsersContainer.innerHTML = '';
+                
+                if (users.length === 0) {
+                    adminUsersContainer.innerHTML = '<div class="no-history">No users found.</div>';
+                } else {
+                    let tableHTML = '<table class="admin-table">';
+                    tableHTML += '<tr><th>Name</th><th>Username</th><th>Balance</th><th>Referrals</th><th>Join Date</th></tr>';
+                    
+                    users.forEach(user => {
+                        tableHTML += `
+                            <tr>
+                                <td>${user.displayName || 'Unknown'}</td>
+                                <td>@${user.username || 'unknown'}</td>
+                                <td>${user.balance || 0} SHIB</td>
+                                <td>${user.referralCount || 0}</td>
+                                <td>${user.joinDate}</td>
+                            </tr>
+                        `;
+                    });
+                    
+                    tableHTML += '</table>';
+                    adminUsersContainer.innerHTML = tableHTML;
+                }
+            } catch (error) {
+                console.error("Error loading users:", error);
+                adminUsersContainer.innerHTML = '<div class="no-history">Error loading users.</div>';
+            }
         }
 
         // Load System Settings
@@ -2404,7 +2623,8 @@
                     balance: userData.balance,
                     totalEarned: userData.totalEarned,
                     adsWatched: userData.adsWatched,
-                    adsToday: userData.adsToday
+                    adsToday: userData.adsToday,
+                    lastLogin: new Date().toISOString()
                 });
                 // Update localStorage
                 localStorage.setItem(`user_${currentUser.uid}`, JSON.stringify(userData));
