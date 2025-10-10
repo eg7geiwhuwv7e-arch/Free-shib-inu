@@ -1632,7 +1632,6 @@
   messagingSenderId: "623122845001",
   appId: "1:623122845001:web:5b0758778b7424dbf75e98"
 };
-
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
@@ -1710,7 +1709,7 @@
             }
         }
 
-        // Initialize Telegram User - ENHANCED PROFILE FETCHING
+        // Initialize Telegram User - IMPROVED PROFILE FETCHING
         async function initializeTelegramUser() {
             const tg = window.Telegram.WebApp;
             tg.expand();
@@ -1754,14 +1753,34 @@
                 await loadUserData(currentUser.uid);
                 setupRealTimeListeners(currentUser.uid);
             } else {
-                // Fallback for testing
-                currentUser = {
-                    uid: 'tg_user_' + Math.floor(Math.random() * 1000000),
-                    displayName: 'Telegram User',
-                    username: 'tguser',
-                    photoUrl: null,
-                    languageCode: 'en'
-                };
+                // Fallback for testing - Use Telegram initData if available
+                const initData = tg.initData;
+                if (initData) {
+                    // Parse initData to get user info
+                    const params = new URLSearchParams(initData);
+                    const userJson = params.get('user');
+                    if (userJson) {
+                        const user = JSON.parse(userJson);
+                        currentUser = {
+                            uid: user.id.toString(),
+                            displayName: `${user.first_name} ${user.last_name || ''}`.trim(),
+                            username: user.username || `user${user.id}`,
+                            photoUrl: user.photo_url || null,
+                            languageCode: user.language_code || 'en'
+                        };
+                    }
+                }
+                
+                // If still no user data, use fallback
+                if (!currentUser) {
+                    currentUser = {
+                        uid: 'tg_user_' + Math.floor(Math.random() * 1000000),
+                        displayName: 'Telegram User',
+                        username: 'tguser',
+                        photoUrl: null,
+                        languageCode: 'en'
+                    };
+                }
                 
                 document.getElementById('user-display-name').textContent = currentUser.displayName;
                 document.getElementById('user-display-id').textContent = `ID: ${currentUser.uid}`;
@@ -1807,7 +1826,7 @@
                 });
         }
 
-        // Load User Data from Firebase with localStorage fallback
+        // Load User Data from Firebase with localStorage fallback - IMPROVED PERSISTENCE
         async function loadUserData(userId) {
             try {
                 // First try to get from Firebase
@@ -1876,6 +1895,15 @@
                 const storedUserData = localStorage.getItem(`user_${userId}`);
                 if (storedUserData) {
                     userData = JSON.parse(storedUserData);
+                    
+                    // Check if we need to reset daily ads
+                    const today = new Date().toDateString();
+                    if (userData.lastAdReset !== today) {
+                        userData.adsToday = 0;
+                        userData.lastAdReset = today;
+                        localStorage.setItem(`user_${userId}`, JSON.stringify(userData));
+                    }
+                    
                     updateUserUI();
                     loadTasks();
                     loadWithdrawalHistory();
@@ -1958,6 +1986,8 @@
 
         // Update User UI with real data
         function updateUserUI() {
+            if (!userData) return;
+            
             document.getElementById('user-balance').textContent = userData.balance.toLocaleString() + ' SHIB';
             
             document.getElementById('activity-total-watched').textContent = userData.adsWatched;
@@ -2029,8 +2059,11 @@
         // Initialize User Panel
         function initializeUserPanel() {
             // For browser users without Telegram
+            const browserUserId = localStorage.getItem('browser_user_id') || 'browser_user_' + Math.floor(Math.random() * 1000000);
+            localStorage.setItem('browser_user_id', browserUserId);
+            
             currentUser = {
-                uid: 'browser_user_' + Math.floor(Math.random() * 1000000),
+                uid: browserUserId,
                 displayName: 'Browser User',
                 username: 'browseruser',
                 photoUrl: null,
@@ -2255,7 +2288,7 @@
             }
         }
 
-        // Claim Task Reward
+        // Claim Task Reward - IMPROVED PERSISTENCE
         async function claimTaskReward(taskId, reward) {
             userData.balance += reward;
             userData.totalEarned += reward;
@@ -2609,7 +2642,7 @@
             }
         });
 
-        // Reward User
+        // Reward User - IMPROVED PERSISTENCE
         async function rewardUser(amount) {
             userData.balance += amount;
             userData.totalEarned += amount;
