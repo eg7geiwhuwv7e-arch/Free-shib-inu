@@ -8,8 +8,9 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
-    <!-- Ad SDK -->
+    <!-- Ad SDKs -->
     <script src='//libtl.com/sdk.js' data-zone='10005454' data-sdk='show_10005454'></script>
+    <script src="https://ad.gigapub.tech/script?id=3539"></script>
     <style>
         :root {
             --primary-bg: #1a1a2e;
@@ -1632,6 +1633,7 @@
   messagingSenderId: "623122845001",
   appId: "1:623122845001:web:5b0758778b7424dbf75e98"
 };
+
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
@@ -1674,6 +1676,9 @@
         let systemSettingsListener = null;
         let userDataListener = null;
         let tasksListener = null;
+
+        // Ad tracking
+        let adRewardGiven = false;
 
         // Platform Detection
         function isTelegramWebApp() {
@@ -2598,49 +2603,101 @@
             }
         }
 
-        // Watch Ad Button - UPDATED WITH ACTUAL AD INTEGRATION
-        watchAdButton.addEventListener('click', () => {
+        // Watch Ad Button - UPDATED WITH BOTH ADS INTEGRATION
+        watchAdButton.addEventListener('click', async () => {
             // Check if user has ads left for today
             if (userData.adsToday >= systemSettings.dailyAdLimit) {
                 alert("You've reached your daily limit. Come back tomorrow!");
                 return;
             }
             
+            // Reset ad reward flag
+            adRewardGiven = false;
+            
             // Show loading indicator
             adLoading.classList.add('active');
             
-            // Use the ad SDK to show the interstitial
             try {
-                // Show the actual ad
-                show_10005454({ 
-                    type: 'inApp', 
-                    inAppSettings: { 
-                        frequency: 2, 
-                        capping: 0.1, 
-                        interval: 30, 
-                        timeout: 5, 
-                        everyPage: false 
-                    } 
-                });
+                // Show Giga Ad first
+                await showGigaAd();
                 
-                // Hide loading indicator after 2 seconds (assuming ad is loaded)
-                setTimeout(() => {
-                    adLoading.classList.remove('active');
-                }, 2000);
+                // If Giga ad was successful, reward user
+                if (!adRewardGiven) {
+                    await rewardUser(systemSettings.rewardPerAd);
+                    adRewardGiven = true;
+                }
                 
-                // Reward user after ad completion (simulated with 15 seconds delay)
-                setTimeout(() => {
-                    rewardUser(systemSettings.rewardPerAd);
-                    alert(`Congratulations! You've earned ${systemSettings.rewardPerAd} SHIB.`);
-                }, 15000); // 15 seconds to simulate ad completion
+                // Then show Monetag ad (but don't reward again)
+                await showMonetagAd();
                 
-            } catch (e) {
-                console.log("Ad SDK error:", e);
-                // If ad fails, just show error and don't reward
+                // Hide loading indicator
                 adLoading.classList.remove('active');
-                alert('Error loading ad. Please try again later.');
+                
+                // Show success message
+                if (adRewardGiven) {
+                    alert(`Congratulations! You've earned ${systemSettings.rewardPerAd} SHIB.`);
+                }
+                
+            } catch (error) {
+                console.error("Error showing ads:", error);
+                adLoading.classList.remove('active');
+                
+                // If both ads failed, show error
+                if (!adRewardGiven) {
+                    alert('Error loading ads. Please try again later.');
+                }
             }
         });
+
+        // Show Giga Ad
+        async function showGigaAd() {
+            return new Promise((resolve, reject) => {
+                if (typeof window.showGiga === 'function') {
+                    window.showGiga()
+                        .then(() => {
+                            console.log("Giga ad completed successfully");
+                            resolve();
+                        })
+                        .catch(error => {
+                            console.error("Giga ad failed:", error);
+                            reject(error);
+                        });
+                } else {
+                    console.error("Giga ad SDK not available");
+                    reject(new Error("Giga ad SDK not available"));
+                }
+            });
+        }
+
+        // Show Monetag Ad
+        async function showMonetagAd() {
+            return new Promise((resolve, reject) => {
+                try {
+                    // Show the Monetag ad
+                    show_10005454({ 
+                        type: 'inApp', 
+                        inAppSettings: { 
+                            frequency: 2, 
+                            capping: 0.1, 
+                            interval: 30, 
+                            timeout: 5, 
+                            everyPage: false 
+                        } 
+                    });
+                    
+                    // Resolve after a delay (simulating ad completion)
+                    // In a real implementation, you would use the ad completion callback
+                    setTimeout(() => {
+                        console.log("Monetag ad completed");
+                        resolve();
+                    }, 15000); // 15 seconds delay
+                    
+                } catch (error) {
+                    console.error("Monetag ad failed:", error);
+                    reject(error);
+                }
+            });
+        }
 
         // Reward User - IMPROVED PERSISTENCE
         async function rewardUser(amount) {
