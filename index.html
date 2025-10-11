@@ -1430,6 +1430,7 @@
             <div class="admin-tab" data-tab="settings">Settings</div>
             <div class="admin-tab" data-tab="ads">Ads Restock</div>
             <div class="admin-tab" data-tab="users">Users</div>
+            <div class="admin-tab" data-tab="balance">Balance Management</div>
         </div>
 
         <!-- Dashboard Section -->
@@ -1591,6 +1592,35 @@
                 </div>
             </div>
         </div>
+
+        <!-- Balance Management Section -->
+        <div id="admin-balance" class="admin-section">
+            <div class="admin-card">
+                <h3>Add SHIB to User Balance</h3>
+                <form id="add-shib-form" class="admin-form">
+                    <div class="admin-input-group">
+                        <label class="admin-label">User ID</label>
+                        <input type="text" id="user-id-input" class="admin-input" placeholder="Enter User ID" required>
+                    </div>
+                    <div class="admin-input-group">
+                        <label class="admin-label">Amount (SHIB)</label>
+                        <input type="number" id="shib-amount-input" class="admin-input" placeholder="Enter SHIB amount" required>
+                    </div>
+                    <button type="submit" class="admin-button">Add SHIB</button>
+                </form>
+            </div>
+
+            <div class="admin-card">
+                <h3>User Search</h3>
+                <div class="admin-input-group">
+                    <label class="admin-label">Search by User ID, Name, or Username</label>
+                    <input type="text" id="user-search-input" class="admin-input" placeholder="Search users...">
+                </div>
+                <div id="user-search-results">
+                    <div class="no-history">Search for users to manage their balances</div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Ad Loading Indicator -->
@@ -1671,6 +1701,9 @@
         const userAvatar = document.getElementById('user-avatar');
         const adsNotAvailable = document.getElementById('ads-not-available');
         const adminUsersContainer = document.getElementById('admin-users-container');
+        const addShibForm = document.getElementById('add-shib-form');
+        const userSearchInput = document.getElementById('user-search-input');
+        const userSearchResults = document.getElementById('user-search-results');
 
         // Real-time listeners
         let systemSettingsListener = null;
@@ -1840,14 +1873,17 @@
                 if (userDoc.exists) {
                     userData = userDoc.data();
                     
-                    // Check if we need to reset daily ads
-                    const today = new Date().toDateString();
-                    if (userData.lastAdReset !== today) {
+                    // Check if we need to reset daily ads (HOURLY RESET)
+                    const now = new Date();
+                    const lastReset = userData.lastAdReset ? new Date(userData.lastAdReset) : new Date(0);
+                    const hoursSinceLastReset = (now - lastReset) / (1000 * 60 * 60);
+                    
+                    if (hoursSinceLastReset >= 1) { // 1 hour reset
                         userData.adsToday = 0;
-                        userData.lastAdReset = today;
+                        userData.lastAdReset = now.toISOString();
                         await db.collection('users').doc(userId).update({
                             adsToday: 0,
-                            lastAdReset: today
+                            lastAdReset: now.toISOString()
                         });
                     }
                     
@@ -1866,7 +1902,7 @@
                         tasksCompleted: {},
                         referredBy: null,
                         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                        lastAdReset: new Date().toDateString(),
+                        lastAdReset: new Date().toISOString(),
                         displayName: currentUser.displayName,
                         username: currentUser.username,
                         photoUrl: currentUser.photoUrl,
@@ -1901,11 +1937,14 @@
                 if (storedUserData) {
                     userData = JSON.parse(storedUserData);
                     
-                    // Check if we need to reset daily ads
-                    const today = new Date().toDateString();
-                    if (userData.lastAdReset !== today) {
+                    // Check if we need to reset daily ads (HOURLY RESET)
+                    const now = new Date();
+                    const lastReset = userData.lastAdReset ? new Date(userData.lastAdReset) : new Date(0);
+                    const hoursSinceLastReset = (now - lastReset) / (1000 * 60 * 60);
+                    
+                    if (hoursSinceLastReset >= 1) { // 1 hour reset
                         userData.adsToday = 0;
-                        userData.lastAdReset = today;
+                        userData.lastAdReset = now.toISOString();
                         localStorage.setItem(`user_${userId}`, JSON.stringify(userData));
                     }
                     
@@ -1925,7 +1964,7 @@
                         referralCode: `ref${userId}`,
                         tasksCompleted: {},
                         referredBy: null,
-                        lastAdReset: new Date().toDateString(),
+                        lastAdReset: new Date().toISOString(),
                         displayName: currentUser.displayName,
                         username: currentUser.username,
                         photoUrl: currentUser.photoUrl,
@@ -2125,6 +2164,10 @@
                     if (tabName === 'users') {
                         loadAllUsers();
                     }
+                    // Load user search if balance management tab is clicked
+                    if (tabName === 'balance') {
+                        setupUserSearch();
+                    }
                 });
             });
         }
@@ -2170,6 +2213,149 @@
             } catch (error) {
                 console.error("Error loading users:", error);
                 adminUsersContainer.innerHTML = '<div class="no-history">Error loading users.</div>';
+            }
+        }
+
+        // Setup User Search for Balance Management
+        function setupUserSearch() {
+            userSearchInput.addEventListener('input', async (e) => {
+                const searchTerm = e.target.value.trim();
+                
+                if (searchTerm.length < 2) {
+                    userSearchResults.innerHTML = '<div class="no-history">Enter at least 2 characters to search</div>';
+                    return;
+                }
+                
+                try {
+                    // Search users by ID, display name, or username
+                    const usersSnapshot = await db.collection('users')
+                        .where('uid', '>=', searchTerm)
+                        .where('uid', '<=', searchTerm + '\uf8ff')
+                        .limit(10)
+                        .get();
+                    
+                    const users = [];
+                    usersSnapshot.forEach(doc => {
+                        const data = doc.data();
+                        users.push({
+                            id: doc.id,
+                            ...data
+                        });
+                    });
+                    
+                    // Also search by display name and username
+                    const nameSnapshot = await db.collection('users')
+                        .where('displayName', '>=', searchTerm)
+                        .where('displayName', '<=', searchTerm + '\uf8ff')
+                        .limit(10)
+                        .get();
+                    
+                    nameSnapshot.forEach(doc => {
+                        const data = doc.data();
+                        // Avoid duplicates
+                        if (!users.find(u => u.id === doc.id)) {
+                            users.push({
+                                id: doc.id,
+                                ...data
+                            });
+                        }
+                    });
+                    
+                    const usernameSnapshot = await db.collection('users')
+                        .where('username', '>=', searchTerm)
+                        .where('username', '<=', searchTerm + '\uf8ff')
+                        .limit(10)
+                        .get();
+                    
+                    usernameSnapshot.forEach(doc => {
+                        const data = doc.data();
+                        // Avoid duplicates
+                        if (!users.find(u => u.id === doc.id)) {
+                            users.push({
+                                id: doc.id,
+                                ...data
+                            });
+                        }
+                    });
+                    
+                    userSearchResults.innerHTML = '';
+                    
+                    if (users.length === 0) {
+                        userSearchResults.innerHTML = '<div class="no-history">No users found</div>';
+                    } else {
+                        users.forEach(user => {
+                            const userElement = document.createElement('div');
+                            userElement.className = 'task-card';
+                            userElement.innerHTML = `
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <div>
+                                        <div style="font-weight: bold;">${user.displayName || 'Unknown'}</div>
+                                        <div style="font-size: 14px; color: var(--text-secondary);">
+                                            @${user.username || 'unknown'} • ID: ${user.uid}
+                                        </div>
+                                        <div style="font-size: 16px; margin-top: 5px;">
+                                            Balance: <strong>${user.balance || 0} SHIB</strong>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <button class="admin-button" onclick="addShibToUser('${user.uid}', '${user.displayName || 'User'}')">
+                                            Add SHIB
+                                        </button>
+                                    </div>
+                                </div>
+                            `;
+                            userSearchResults.appendChild(userElement);
+                        });
+                    }
+                } catch (error) {
+                    console.error("Error searching users:", error);
+                    userSearchResults.innerHTML = '<div class="no-history">Error searching users</div>';
+                }
+            });
+        }
+
+        // Add SHIB to User Balance
+        async function addShibToUser(userId, userName) {
+            const amount = parseInt(prompt(`Enter SHIB amount to add to ${userName}:`));
+            
+            if (!amount || amount <= 0) {
+                alert('Please enter a valid amount');
+                return;
+            }
+            
+            try {
+                // Get user data
+                const userDoc = await db.collection('users').doc(userId).get();
+                
+                if (!userDoc.exists) {
+                    alert('User not found');
+                    return;
+                }
+                
+                const userData = userDoc.data();
+                const newBalance = (userData.balance || 0) + amount;
+                
+                // Update user balance
+                await db.collection('users').doc(userId).update({
+                    balance: newBalance
+                });
+                
+                // Update localStorage if user is current user
+                if (currentUser && currentUser.uid === userId) {
+                    userData.balance = newBalance;
+                    localStorage.setItem(`user_${userId}`, JSON.stringify(userData));
+                    updateUserUI();
+                }
+                
+                alert(`Successfully added ${amount} SHIB to ${userName}. New balance: ${newBalance} SHIB`);
+                
+                // Refresh user search results
+                if (userSearchInput.value) {
+                    userSearchInput.dispatchEvent(new Event('input'));
+                }
+            } catch (error) {
+                console.error("Error adding SHIB to user:", error);
+                alert('Error adding SHIB. Please try again.');
             }
         }
 
@@ -2857,14 +3043,14 @@
             if (confirm('Are you sure you want to restock ads for all users? This will reset their daily ad count.')) {
                 try {
                     const usersSnapshot = await db.collection('users').get();
-                    const today = new Date().toDateString();
+                    const now = new Date().toISOString();
                     
                     // Use batched writes to update all users
                     const batch = db.batch();
                     usersSnapshot.forEach(doc => {
                         batch.update(doc.ref, {
                             adsToday: 0,
-                            lastAdReset: today
+                            lastAdReset: now
                         });
                     });
                     
@@ -2874,13 +3060,13 @@
                     // Also update current user data if they're logged in
                     if (userData) {
                         userData.adsToday = 0;
-                        userData.lastAdReset = today;
+                        userData.lastAdReset = now;
                         updateUserUI();
                         
                         // Update in Firebase
                         await db.collection('users').doc(currentUser.uid).update({
                             adsToday: 0,
-                            lastAdReset: today
+                            lastAdReset: now
                         });
                         // Update localStorage
                         localStorage.setItem(`user_${currentUser.uid}`, JSON.stringify(userData));
@@ -3016,6 +3202,62 @@
                 }
             }
         }
+
+        // Add SHIB Form
+        addShibForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const userId = document.getElementById('user-id-input').value;
+            const amount = parseInt(document.getElementById('shib-amount-input').value);
+            
+            if (!userId || !amount) {
+                alert('Please enter both User ID and amount');
+                return;
+            }
+            
+            if (amount <= 0) {
+                alert('Please enter a valid amount');
+                return;
+            }
+            
+            try {
+                // Get user data
+                const userDoc = await db.collection('users').doc(userId).get();
+                
+                if (!userDoc.exists) {
+                    alert('User not found');
+                    return;
+                }
+                
+                const userData = userDoc.data();
+                const newBalance = (userData.balance || 0) + amount;
+                
+                // Update user balance
+                await db.collection('users').doc(userId).update({
+                    balance: newBalance
+                });
+                
+                // Update localStorage if user is current user
+                if (currentUser && currentUser.uid === userId) {
+                    userData.balance = newBalance;
+                    localStorage.setItem(`user_${userId}`, JSON.stringify(userData));
+                    updateUserUI();
+                }
+                
+                alert(`Successfully added ${amount} SHIB to ${userData.displayName || 'User'}. New balance: ${newBalance} SHIB`);
+                
+                // Clear form
+                addShibForm.reset();
+                
+                // Refresh user search results if search is active
+                if (userSearchInput.value) {
+                    userSearchInput.dispatchEvent(new Event('input'));
+                }
+            } catch (error) {
+                console.error("Error adding SHIB to user:", error);
+                alert('Error adding SHIB. Please try again.');
+            }
+        });
 
         // Event Listeners
         withdrawButton.addEventListener('click', withdrawButtonClick);
