@@ -28,6 +28,7 @@
             --transition: all 0.3s ease;
         }
 
+        /* COMPREHENSIVE TEXT SELECTION PREVENTION */
         * {
             margin: 0;
             padding: 0;
@@ -40,6 +41,38 @@
             -ms-user-select: none;
             user-select: none;
             -webkit-user-drag: none;
+            -webkit-touch-callout: none !important;
+        }
+
+        /* Prevent text selection on ALL elements */
+        body, div, p, span, h1, h2, h3, h4, h5, h6, a, button, input, label, 
+        .container, .header, .user-profile, .activity-section, .task-card, 
+        .withdraw-container, .referral-container, .leaderboard, .profile-section,
+        .bottom-nav, .nav-item, .section, .admin-panel, .admin-card {
+            -webkit-user-select: none !important;
+            -moz-user-select: none !important;
+            -ms-user-select: none !important;
+            user-select: none !important;
+            -webkit-touch-callout: none !important;
+            -webkit-tap-highlight-color: transparent !important;
+        }
+
+        /* Allow text selection only on input fields and textareas */
+        input, textarea, .referral-link, .input-field, .admin-input, .login-input {
+            -webkit-user-select: text !important;
+            -moz-user-select: text !important;
+            -ms-user-select: text !important;
+            user-select: text !important;
+        }
+
+        /* Prevent context menu on long press */
+        body {
+            -webkit-touch-callout: none !important;
+            -webkit-user-select: none !important;
+            -khtml-user-select: none !important;
+            -moz-user-select: none !important;
+            -ms-user-select: none !important;
+            user-select: none !important;
         }
 
         /* Loading Screen Styles */
@@ -139,28 +172,6 @@
         .loading-dots::after {
             content: '';
             animation: dots 1.5s steps(4, end) infinite;
-        }
-
-        /* Prevent link highlighting on long press */
-        a, button, .nav-item, .task-card, .user-profile, .activity-section, 
-        .withdraw-container, .referral-container, .leaderboard, .profile-section {
-            -webkit-touch-callout: none;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            user-select: none;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        /* Specifically prevent text selection */
-        .username, .user-id, .shib-amount, .activity-header, .activity-stat-number,
-        .activity-stat-label, .task-title, .progress-text, .withdraw-title,
-        .referral-title, .referral-link, .profile-name, .profile-username,
-        .profile-id, .profile-stat-number, .profile-stat-label {
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            user-select: none;
         }
 
         body {
@@ -1251,46 +1262,6 @@
             80%, 100% { text-shadow: .25em 0 0 white, .5em 0 0 white; }
         }
 
-        /* Responsive */
-        @media (max-width: 480px) {
-            .container {
-                padding: 10px;
-            }
-            
-            .admin-table {
-                font-size: 14px;
-            }
-            
-            .admin-table th, .admin-table td {
-                padding: 10px 5px;
-            }
-            
-            .header {
-                padding: 20px;
-            }
-            
-            .logo {
-                font-size: 24px;
-            }
-            
-            .activity-stats {
-                flex-direction: column;
-                gap: 10px;
-            }
-            
-            .activity-stat-number {
-                font-size: 24px;
-            }
-
-            .loading-logo {
-                font-size: 32px;
-            }
-
-            .loading-tagline {
-                font-size: 16px;
-            }
-        }
-
         /* Ads Not Available Message */
         .ads-not-available {
             background-color: var(--card-bg);
@@ -1406,6 +1377,46 @@
             color: var(--text-secondary);
             font-weight: 400;
             letter-spacing: 0.2px;
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .admin-table {
+                font-size: 14px;
+            }
+            
+            .admin-table th, .admin-table td {
+                padding: 10px 5px;
+            }
+            
+            .header {
+                padding: 20px;
+            }
+            
+            .logo {
+                font-size: 24px;
+            }
+            
+            .activity-stats {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .activity-stat-number {
+                font-size: 24px;
+            }
+
+            .loading-logo {
+                font-size: 32px;
+            }
+
+            .loading-tagline {
+                font-size: 16px;
+            }
         }
     </style>
 </head>
@@ -1850,6 +1861,27 @@
     </div>
 
     <script>
+        // COMPREHENSIVE LONG PRESS AND TEXT SELECTION PREVENTION
+        document.addEventListener('DOMContentLoaded', function() {
+            // Prevent context menu on long press
+            document.addEventListener('contextmenu', function(e) {
+                e.preventDefault();
+                return false;
+            });
+            
+            // Prevent text selection
+            document.addEventListener('selectstart', function(e) {
+                e.preventDefault();
+                return false;
+            });
+            
+            // Prevent drag and drop
+            document.addEventListener('dragstart', function(e) {
+                e.preventDefault();
+                return false;
+            });
+        });
+
         // Firebase Configuration
         const firebaseConfig = {
   apiKey: "AIzaSyDOMdnCV2hXOveocXtEnnwICzJjp0Bb4Mg",
