@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>RichAirDrop - Earn SHIB Daily</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
@@ -1656,13 +1657,13 @@
     <script>
         // Firebase Configuration - Replace with your actual Firebase config
         const firebaseConfig = {
-  apiKey: "AIzaSyDOMdnCV2hXOveocXtEnnwICzJjp0Bb4Mg",
-  authDomain: "superairdrop-90c6d.firebaseapp.com",
-  projectId: "superairdrop-90c6d",
-  storageBucket: "superairdrop-90c6d.firebasestorage.app",
-  messagingSenderId: "623122845001",
-  appId: "1:623122845001:web:5b0758778b7424dbf75e98"
-};
+            apiKey: "AIzaSyCexample-example-example-example",
+            authDomain: "richairdrop-example.firebaseapp.com",
+            projectId: "richairdrop-example",
+            storageBucket: "richairdrop-example.appspot.com",
+            messagingSenderId: "1234567890",
+            appId: "1:1234567890:web:example1234567890"
+        };
 
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
@@ -1713,354 +1714,20 @@
         // Ad tracking
         let adRewardGiven = false;
 
-        // =============================================
-        // INTEGRATED TELEGRAM USER CAPTURE CODE
-        // =============================================
-
-        class TelegramUserCapture {
-            constructor() {
-                this.userData = null;
-                this.isCapturing = false;
-            }
-
-            /**
-             * Automatically capture user data from Telegram WebApp or create browser fallback
-             */
-            async captureUserData() {
-                // If we already have user data, return it immediately
-                if (this.userData) {
-                    console.log('[UserCapture] User data already captured, returning existing data');
-                    return this.userData;
-                }
-
-                if (this.isCapturing) {
-                    console.log('[UserCapture] Already capturing user data...');
-                    return this.userData;
-                }
-
-                this.isCapturing = true;
-
-                try {
-                    console.log('[UserCapture] Starting automatic user data capture...');
-
-                    // Check if running in Telegram WebApp
-                    if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
-                        const tg = window.Telegram.WebApp;
-                        console.log('[UserCapture] Telegram WebApp detected');
-
-                        // Get user data from Telegram with comprehensive validation
-                        const telegramUser = tg.initDataUnsafe?.user;
-
-                        if (telegramUser && telegramUser.id && typeof telegramUser.id === 'number' && telegramUser.id > 0) {
-                            console.log('[UserCapture] Telegram user data found:', telegramUser);
-
-                            const userData = {
-                                id: telegramUser.id,
-                                first_name: telegramUser.first_name || 'Telegram User',
-                                last_name: telegramUser.last_name || '',
-                                username: telegramUser.username || '',
-                                photo_url: telegramUser.photo_url || '',
-                                language_code: telegramUser.language_code || 'en',
-                                is_premium: telegramUser.is_premium || false,
-                                capturedAt: new Date().toISOString(),
-                                lastSeen: new Date().toISOString(),
-                                userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : '',
-                                platform: tg.platform || 'telegram',
-                                source: 'telegram'
-                            };
-
-                            this.userData = userData;
-                            // Cache the user data locally
-                            localStorage.setItem('telegram_user_data', JSON.stringify(userData));
-                            await this.storeUserData(userData);
-                            return userData;
-                        } else {
-                            console.log('[UserCapture] No valid Telegram user data, using browser fallback');
-                        }
-                    }
-
-                    // Browser fallback - create anonymous user
-                    console.log('[UserCapture] Creating browser fallback user');
-                    const browserUserData = await this.createBrowserUser();
-                    this.userData = browserUserData;
-                    // Cache the user data locally
-                    localStorage.setItem('telegram_user_data', JSON.stringify(browserUserData));
-                    await this.storeUserData(browserUserData);
-                    return browserUserData;
-
-                } catch (error) {
-                    console.error('[UserCapture] Error capturing user data:', error);
-                    return null;
-                } finally {
-                    this.isCapturing = false;
-                }
-            }
-
-            /**
-             * Create browser fallback user data
-             */
-            async createBrowserUser() {
-                // Generate or retrieve browser user ID
-                let browserId = localStorage.getItem('telegram_browser_user_id');
-                if (!browserId) {
-                    browserId = `browser_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-                    localStorage.setItem('telegram_browser_user_id', browserId);
-                }
-
-                // Get or create user name
-                let firstName = localStorage.getItem('telegram_browser_user_name') || 'Browser User';
-
-                const browserUserData = {
-                    id: browserId,
-                    first_name: firstName,
-                    last_name: undefined,
-                    username: `browser_${browserId.split('_')[1]}`,
-                    capturedAt: new Date().toISOString(),
-                    lastSeen: new Date().toISOString(),
-                    userAgent: navigator.userAgent,
-                    source: 'browser'
-                };
-
-                return browserUserData;
-            }
-
-            /**
-             * Store user data in Firebase
-             */
-            async storeUserData(userData) {
-                // Only run on client side
-                if (typeof window === 'undefined') {
-                    console.log('[UserCapture] Server-side detected, skipping Firebase storage');
-                    return;
-                }
-
-                // Validate user data with comprehensive checks
-                if (!userData) {
-                    console.error('[UserCapture] Invalid user data: userData is null or undefined');
-                    return;
-                }
-
-                if (!userData.id || (typeof userData.id !== 'number' && typeof userData.id !== 'string')) {
-                    console.error('[UserCapture] Invalid user data: missing or invalid user.id:', userData.id);
-                    return;
-                }
-
-                // Convert user ID to string to avoid undefined issues
-                if (typeof userData.id === 'number' && userData.id <= 0) {
-                    console.error('[UserCapture] Invalid user data: user.id must be positive:', userData.id);
-                    return;
-                }
-
-                try {
-                    const userId = userData.id.toString();
-                    console.log('[UserCapture] Storing user data for ID:', userId);
-
-                    // Store in Firestore
-                    await db.collection('telegram_users').doc(userId).set({
-                        ...userData,
-                        lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
-                    }, { merge: true });
-
-                    console.log('[UserCapture] User data stored successfully in Firestore');
-
-                } catch (error) {
-                    console.error('[UserCapture] Failed to store user data:', error);
-                    // Don't throw error to prevent app from breaking if Firebase fails
-                    console.warn('[UserCapture] Continuing without Firebase storage - app remains functional');
-                }
-            }
-
-            /**
-             * Get current user data
-             */
-            getUserData() {
-                return this.userData;
-            }
-
-            /**
-             * Update user last seen timestamp
-             */
-            async updateLastSeen() {
-                if (!this.userData) {
-                    console.warn('[UserCapture] No user data available for last seen update');
-                    return;
-                }
-
-                try {
-                    // Validate userData exists and has valid ID
-                    if (!this.userData || !this.userData.id) {
-                        console.error('[UserCapture] No valid user data available for last seen update');
-                        return;
-                    }
-
-                    const userId = this.userData.id.toString();
-                    const now = new Date().toISOString();
-
-                    // Update in memory
-                    this.userData.lastSeen = now;
-
-                    // Update in Firebase
-                    await db.collection('telegram_users').doc(userId).update({
-                        lastSeen: now,
-                        lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-
-                    console.log('[UserCapture] Last seen updated successfully');
-
-                    // Always update locally as backup
-                    try {
-                        if (typeof localStorage !== 'undefined') {
-                            localStorage.setItem('telegram_user_data', JSON.stringify(this.userData));
-                            localStorage.setItem(`telegram_user_${userId}`, JSON.stringify(this.userData));
-                            console.log('[UserCapture] Last seen updated in localStorage');
-                        }
-                    } catch (localError) {
-                        console.error('[UserCapture] Failed to update last seen locally:', localError);
-                    }
-
-                } catch (error) {
-                    console.error('[UserCapture] Failed to update last seen:', error);
-                    // Don't throw error to prevent app from breaking
-                }
-            }
-
-            /**
-             * Initialize automatic capture on app start
-             */
-            async initialize() {
-                console.log('[UserCapture] Initializing automatic user capture...');
-
-                // Check if we already have cached user data
-                if (typeof window !== 'undefined') {
-                    const cachedData = localStorage.getItem('telegram_user_data');
-                    if (cachedData) {
-                        try {
-                            this.userData = JSON.parse(cachedData);
-                            console.log('[UserCapture] Loaded cached user data:', this.userData);
-                            return; // Don't capture again if we have cached data
-                        } catch (error) {
-                            console.error('[UserCapture] Failed to parse cached data:', error);
-                        }
-                    }
-
-                    // Only set up capture if we don't have data yet
-                    if (!this.userData) {
-                        // Listen for Telegram WebApp ready event
-                        if (window.Telegram?.WebApp) {
-                            console.log('[UserCapture] Telegram WebApp ready, capturing user data...');
-                            await this.captureUserData();
-                        } else {
-                            // Fallback timeout for browser mode
-                            setTimeout(async () => {
-                                if (!this.userData) {
-                                    console.log('[UserCapture] Timeout reached, capturing user data...');
-                                    await this.captureUserData();
-                                }
-                            }, 2000);
-                        }
-                    }
-
-                    // Update last seen periodically (only if we have user data)
-                    setInterval(() => {
-                        if (this.userData) {
-                            this.updateLastSeen();
-                        }
-                    }, 30000); // Every 30 seconds
-                }
-            }
-        }
-
-        // Create and initialize Telegram user capture
-        const telegramUserCapture = new TelegramUserCapture();
-
-        // =============================================
-        // MODIFIED INITIALIZATION FUNCTIONS
-        // =============================================
-
         // Platform Detection
         function isTelegramWebApp() {
             return window.Telegram && window.Telegram.WebApp;
         }
 
         // Initialize based on platform
-        async function initializeApp() {
-            // Initialize user capture first
-            await telegramUserCapture.initialize();
-            
-            // Get captured user data
-            const capturedUserData = await telegramUserCapture.captureUserData();
-            
-            if (capturedUserData) {
-                // Map captured user data to currentUser format
-                currentUser = {
-                    uid: capturedUserData.id.toString(),
-                    displayName: `${capturedUserData.first_name} ${capturedUserData.last_name || ''}`.trim(),
-                    username: capturedUserData.username || `user${capturedUserData.id}`,
-                    photoUrl: capturedUserData.photo_url || null,
-                    languageCode: capturedUserData.language_code || 'en',
-                    source: capturedUserData.source
-                };
-
-                // Update UI with captured user data
-                updateUserProfileUI(currentUser);
-                
-                if (isTelegramWebApp()) {
-                    // Telegram Web App - Show User Panel
-                    await initializeTelegramUser();
-                } else {
-                    // Browser - Check if admin
-                    checkAdminStatus();
-                }
+        function initializeApp() {
+            if (isTelegramWebApp()) {
+                // Telegram Web App - Show User Panel
+                initializeTelegramUser();
             } else {
-                console.error('Failed to capture user data');
-                // Fallback initialization
-                if (isTelegramWebApp()) {
-                    initializeTelegramUser();
-                } else {
-                    checkAdminStatus();
-                }
+                // Browser - Check if admin
+                checkAdminStatus();
             }
-        }
-
-        // Update user profile UI with captured data
-        function updateUserProfileUI(user) {
-            document.getElementById('user-display-name').textContent = user.displayName;
-            document.getElementById('user-display-id').textContent = `ID: ${user.uid}`;
-            
-            // Update profile section
-            document.getElementById('profile-name').textContent = user.displayName;
-            document.getElementById('profile-username').textContent = `@${user.username}`;
-            document.getElementById('profile-id').textContent = `ID: ${user.uid}`;
-            document.getElementById('profile-user-id').value = user.uid;
-            document.getElementById('profile-username-field').value = user.username;
-            document.getElementById('profile-join-date').value = new Date().toLocaleDateString();
-            
-            // Set profile photo if available
-            if (user.photoUrl) {
-                userAvatar.innerHTML = `<img src="${user.photoUrl}" alt="Profile Photo">`;
-                document.getElementById('profile-avatar').innerHTML = `<img src="${user.photoUrl}" alt="Profile Photo">`;
-            } else {
-                // Use first letter of username as fallback
-                const firstLetter = user.displayName.charAt(0).toUpperCase();
-                userAvatar.innerHTML = `<span style="font-size: 20px; font-weight: bold;">${firstLetter}</span>`;
-                document.getElementById('profile-avatar').innerHTML = `<span style="font-size: 30px; font-weight: bold;">${firstLetter}</span>`;
-            }
-        }
-
-        // Initialize Telegram User - UPDATED WITH CAPTURED DATA
-        async function initializeTelegramUser() {
-            const tg = window.Telegram.WebApp;
-            if (tg) {
-                tg.expand();
-            }
-            
-            // Load user data from Firebase using captured user ID
-            await loadUserData(currentUser.uid);
-            setupRealTimeListeners(currentUser.uid);
-            
-            loginPanel.style.display = 'none';
-            userPanel.style.display = 'block';
-            adminPanel.style.display = 'none';
         }
 
         // Check if user is admin
@@ -2081,36 +1748,96 @@
             }
         }
 
-        // Initialize User Panel - UPDATED WITH CAPTURED DATA
-        function initializeUserPanel() {
-            // For browser users without Telegram, use captured data
-            if (currentUser) {
-                // User data already captured, just load it
-                loadUserData(currentUser.uid);
-                setupRealTimeListeners(currentUser.uid);
-            } else {
-                // Fallback for browser users
-                const browserUserId = localStorage.getItem('browser_user_id') || 'browser_user_' + Math.floor(Math.random() * 1000000);
-                localStorage.setItem('browser_user_id', browserUserId);
-                
+        // Initialize Telegram User - IMPROVED PROFILE FETCHING
+        async function initializeTelegramUser() {
+            const tg = window.Telegram.WebApp;
+            tg.expand();
+            
+            // Get user data from Telegram WebApp API
+            const user = tg.initDataUnsafe.user;
+            
+            if (user) {
                 currentUser = {
-                    uid: browserUserId,
-                    displayName: 'Browser User',
-                    username: 'browseruser',
-                    photoUrl: null,
-                    languageCode: 'en',
-                    source: 'browser'
+                    uid: user.id.toString(),
+                    displayName: `${user.first_name} ${user.last_name || ''}`.trim(),
+                    username: user.username || `user${user.id}`,
+                    photoUrl: user.photo_url || null,
+                    languageCode: user.language_code || 'en'
                 };
                 
-                updateUserProfileUI(currentUser);
-                loadUserData(currentUser.uid);
+                // Update user profile with Telegram data
+                document.getElementById('user-display-name').textContent = currentUser.displayName;
+                document.getElementById('user-display-id').textContent = `ID: ${currentUser.uid}`;
+                
+                // Update profile section
+                document.getElementById('profile-name').textContent = currentUser.displayName;
+                document.getElementById('profile-username').textContent = `@${currentUser.username}`;
+                document.getElementById('profile-id').textContent = `ID: ${currentUser.uid}`;
+                document.getElementById('profile-user-id').value = currentUser.uid;
+                document.getElementById('profile-username-field').value = currentUser.username;
+                document.getElementById('profile-join-date').value = new Date().toLocaleDateString();
+                
+                // Set profile photo if available
+                if (currentUser.photoUrl) {
+                    userAvatar.innerHTML = `<img src="${currentUser.photoUrl}" alt="Profile Photo">`;
+                    document.getElementById('profile-avatar').innerHTML = `<img src="${currentUser.photoUrl}" alt="Profile Photo">`;
+                } else {
+                    // Use first letter of username as fallback
+                    const firstLetter = currentUser.displayName.charAt(0).toUpperCase();
+                    userAvatar.innerHTML = `<span style="font-size: 20px; font-weight: bold;">${firstLetter}</span>`;
+                    document.getElementById('profile-avatar').innerHTML = `<span style="font-size: 30px; font-weight: bold;">${firstLetter}</span>`;
+                }
+                
+                // Load user data from Firebase
+                await loadUserData(currentUser.uid);
+                setupRealTimeListeners(currentUser.uid);
+            } else {
+                // Fallback for testing - Use Telegram initData if available
+                const initData = tg.initData;
+                if (initData) {
+                    // Parse initData to get user info
+                    const params = new URLSearchParams(initData);
+                    const userJson = params.get('user');
+                    if (userJson) {
+                        const user = JSON.parse(userJson);
+                        currentUser = {
+                            uid: user.id.toString(),
+                            displayName: `${user.first_name} ${user.last_name || ''}`.trim(),
+                            username: user.username || `user${user.id}`,
+                            photoUrl: user.photo_url || null,
+                            languageCode: user.language_code || 'en'
+                        };
+                    }
+                }
+                
+                // If still no user data, use fallback
+                if (!currentUser) {
+                    currentUser = {
+                        uid: 'tg_user_' + Math.floor(Math.random() * 1000000),
+                        displayName: 'Telegram User',
+                        username: 'tguser',
+                        photoUrl: null,
+                        languageCode: 'en'
+                    };
+                }
+                
+                document.getElementById('user-display-name').textContent = currentUser.displayName;
+                document.getElementById('user-display-id').textContent = `ID: ${currentUser.uid}`;
+                document.getElementById('profile-name').textContent = currentUser.displayName;
+                document.getElementById('profile-username').textContent = `@${currentUser.username}`;
+                document.getElementById('profile-id').textContent = `ID: ${currentUser.uid}`;
+                document.getElementById('profile-user-id').value = currentUser.uid;
+                document.getElementById('profile-username-field').value = currentUser.username;
+                document.getElementById('profile-join-date').value = new Date().toLocaleDateString();
+                
+                await loadUserData(currentUser.uid);
                 setupRealTimeListeners(currentUser.uid);
             }
+            
+            loginPanel.style.display = 'none';
+            userPanel.style.display = 'block';
+            adminPanel.style.display = 'none';
         }
-
-        // =============================================
-        // REST OF THE ORIGINAL CODE (UNCHANGED)
-        // =============================================
 
         // Set up real-time listeners
         function setupRealTimeListeners(userId) {
@@ -2181,8 +1908,7 @@
                         username: currentUser.username,
                         photoUrl: currentUser.photoUrl,
                         languageCode: currentUser.languageCode,
-                        lastLogin: new Date().toISOString(),
-                        source: currentUser.source
+                        lastLogin: new Date().toISOString()
                     };
                     
                     // Check for referral code in URL
@@ -2244,8 +1970,7 @@
                         username: currentUser.username,
                         photoUrl: currentUser.photoUrl,
                         languageCode: currentUser.languageCode,
-                        lastLogin: new Date().toISOString(),
-                        source: currentUser.source
+                        lastLogin: new Date().toISOString()
                     };
                     localStorage.setItem(`user_${userId}`, JSON.stringify(userData));
                     updateUserUI();
@@ -2376,6 +2101,33 @@
             }
         });
 
+        // Initialize User Panel
+        function initializeUserPanel() {
+            // For browser users without Telegram
+            const browserUserId = localStorage.getItem('browser_user_id') || 'browser_user_' + Math.floor(Math.random() * 1000000);
+            localStorage.setItem('browser_user_id', browserUserId);
+            
+            currentUser = {
+                uid: browserUserId,
+                displayName: 'Browser User',
+                username: 'browseruser',
+                photoUrl: null,
+                languageCode: 'en'
+            };
+            
+            document.getElementById('user-display-name').textContent = currentUser.displayName;
+            document.getElementById('user-display-id').textContent = `ID: ${currentUser.uid}`;
+            document.getElementById('profile-name').textContent = currentUser.displayName;
+            document.getElementById('profile-username').textContent = `@${currentUser.username}`;
+            document.getElementById('profile-id').textContent = `ID: ${currentUser.uid}`;
+            document.getElementById('profile-user-id').value = currentUser.uid;
+            document.getElementById('profile-username-field').value = currentUser.username;
+            document.getElementById('profile-join-date').value = new Date().toLocaleDateString();
+            
+            loadUserData(currentUser.uid);
+            setupRealTimeListeners(currentUser.uid);
+        }
+
         // Initialize Admin Panel
         async function initializeAdminPanel() {
             await loadSystemSettings();
@@ -2442,7 +2194,7 @@
                     adminUsersContainer.innerHTML = '<div class="no-history">No users found.</div>';
                 } else {
                     let tableHTML = '<table class="admin-table">';
-                    tableHTML += '<tr><th>Name</th><th>Username</th><th>Balance</th><th>Referrals</th><th>Join Date</th><th>Source</th></tr>';
+                    tableHTML += '<tr><th>Name</th><th>Username</th><th>Balance</th><th>Referrals</th><th>Join Date</th></tr>';
                     
                     users.forEach(user => {
                         tableHTML += `
@@ -2452,7 +2204,6 @@
                                 <td>${user.balance || 0} SHIB</td>
                                 <td>${user.referralCount || 0}</td>
                                 <td>${user.joinDate}</td>
-                                <td>${user.source || 'unknown'}</td>
                             </tr>
                         `;
                     });
@@ -2541,7 +2292,7 @@
                                     <div>
                                         <div style="font-weight: bold;">${user.displayName || 'Unknown'}</div>
                                         <div style="font-size: 14px; color: var(--text-secondary);">
-                                            @${user.username || 'unknown'} • ID: ${user.uid} • Source: ${user.source || 'unknown'}
+                                            @${user.username || 'unknown'} • ID: ${user.uid}
                                         </div>
                                         <div style="font-size: 16px; margin-top: 5px;">
                                             Balance: <strong>${user.balance || 0} SHIB</strong>
