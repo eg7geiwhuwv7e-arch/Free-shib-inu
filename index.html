@@ -106,17 +106,6 @@
             position: relative;
         }
 
-        .loading-logo::after {
-            content: '';
-            position: absolute;
-            bottom: -10px;
-            left: 0;
-            width: 100%;
-            height: 4px;
-            background: linear-gradient(90deg, transparent, var(--highlight), transparent);
-            border-radius: 2px;
-        }
-
         .loading-tagline {
             font-size: 18px;
             color: var(--text);
@@ -172,6 +161,57 @@
         .loading-dots::after {
             content: '';
             animation: dots 1.5s steps(4, end) infinite;
+        }
+
+        /* Browser Message Styles */
+        .browser-message {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--accent), var(--primary-bg));
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9998;
+            padding: 20px;
+            text-align: center;
+            display: none;
+        }
+
+        .browser-message.active {
+            display: flex;
+        }
+
+        .browser-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+            color: var(--highlight);
+        }
+
+        .browser-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: var(--text);
+        }
+
+        .browser-text {
+            font-size: 18px;
+            color: var(--text);
+            margin-bottom: 30px;
+            max-width: 500px;
+            line-height: 1.6;
+        }
+
+        .browser-note {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-top: 20px;
+            max-width: 500px;
+            line-height: 1.5;
         }
 
         body {
@@ -1417,6 +1457,14 @@
             .loading-tagline {
                 font-size: 16px;
             }
+
+            .browser-title {
+                font-size: 24px;
+            }
+
+            .browser-text {
+                font-size: 16px;
+            }
         }
     </style>
 </head>
@@ -1432,7 +1480,22 @@
         <div class="loading-text" id="loading-text">Initializing App<span class="loading-dots"></span></div>
     </div>
 
-    <!-- Admin Login Panel - Only visible in browser -->
+    <!-- Browser Message (Shown when opened in browser without admin parameter) -->
+    <div id="browser-message" class="browser-message">
+        <div class="browser-icon">
+            <i class="fas fa-exclamation-circle"></i>
+        </div>
+        <div class="browser-title">App Not Available in Browser</div>
+        <div class="browser-text">
+            This application is designed to work exclusively within the Telegram messenger. 
+            Please open this link in Telegram to access the RichAirDrop bot and start earning SHIB.
+        </div>
+        <div class="browser-note">
+            Plz Open Bot In Telegram <strong>?</strong> Thnx.
+        </div>
+    </div>
+
+    <!-- Admin Login Panel - Only visible in browser with ?admin=true -->
     <div id="login-panel" class="login-panel" style="display: none;">
         <div class="login-title">Admin Login</div>
         <input type="text" id="admin-username" class="login-input" placeholder="Username">
@@ -1440,7 +1503,7 @@
         <button id="admin-login-button" class="login-button">Login</button>
     </div>
 
-    <!-- User Panel -->
+    <!-- User Panel - Only visible in Telegram -->
     <div id="user-panel" class="container" style="display: none;">
         <!-- Header -->
         <div class="header">
@@ -1622,7 +1685,7 @@
         </div>
     </div>
 
-    <!-- Admin Panel - Only visible in browser -->
+    <!-- Admin Panel - Only visible in browser with ?admin=true and after login -->
     <div id="admin-panel" class="admin-panel container" style="display: none;">
         <!-- Admin panel content -->
         <div class="admin-header">
@@ -1916,6 +1979,7 @@
         const loadingScreen = document.getElementById('loading-screen');
         const loadingProgressBar = document.getElementById('loading-progress-bar');
         const loadingText = document.getElementById('loading-text');
+        const browserMessage = document.getElementById('browser-message');
         const loginPanel = document.getElementById('login-panel');
         const userPanel = document.getElementById('user-panel');
         const adminPanel = document.getElementById('admin-panel');
@@ -2019,20 +2083,28 @@
                 console.log("Admin mode detected - Showing Admin Login");
                 updateLoadingScreen(50, "Loading Admin Panel");
                 setTimeout(() => {
-                    loginPanel.style.display = 'block';
+                    // Hide everything first
+                    browserMessage.style.display = 'none';
                     userPanel.style.display = 'none';
                     adminPanel.style.display = 'none';
+                    
+                    // Show admin login
+                    loginPanel.style.display = 'block';
                     updateLoadingScreen(100, "Ready");
                 }, 1000);
             } else {
-                // Show user panel in browser if not admin
-                console.log("User mode detected - Showing User Panel");
-                updateLoadingScreen(50, "Loading User Panel");
+                // Show browser message - no admin parameter
+                console.log("Browser mode detected - Showing Browser Message");
+                updateLoadingScreen(50, "Checking Access");
                 setTimeout(() => {
+                    // Hide all panels
                     loginPanel.style.display = 'none';
-                    userPanel.style.display = 'block';
+                    userPanel.style.display = 'none';
                     adminPanel.style.display = 'none';
-                    initializeUserPanel();
+                    
+                    // Show browser message
+                    browserMessage.classList.add('active');
+                    updateLoadingScreen(100, "Ready");
                 }, 1000);
             }
         }
@@ -2115,6 +2187,7 @@
                 loginPanel.style.display = 'none';
                 userPanel.style.display = 'block';
                 adminPanel.style.display = 'none';
+                browserMessage.style.display = 'none';
                 updateLoadingScreen(100, "Ready");
                 
                 console.log("Telegram User Panel Initialized");
@@ -2450,6 +2523,7 @@
                     loginPanel.style.display = 'none';
                     userPanel.style.display = 'none';
                     adminPanel.style.display = 'block';
+                    browserMessage.style.display = 'none';
                     initializeAdminPanel();
                     updateLoadingScreen(100, "Ready");
                 }, 1000);
@@ -2460,9 +2534,15 @@
 
         // Admin Logout
         adminLogoutBtn.addEventListener('click', () => {
+            // Show login panel again
             loginPanel.style.display = 'block';
             userPanel.style.display = 'none';
             adminPanel.style.display = 'none';
+            browserMessage.style.display = 'none';
+            
+            // Clear login form
+            document.getElementById('admin-username').value = '';
+            document.getElementById('admin-password').value = '';
             
             // Clean up real-time listeners
             if (systemSettingsListener) {
@@ -2472,37 +2552,6 @@
                 userDataListener();
             }
         });
-
-        // Initialize User Panel
-        function initializeUserPanel() {
-            // For browser users without Telegram
-            const browserUserId = localStorage.getItem('browser_user_id') || 'browser_user_' + Math.floor(Math.random() * 1000000);
-            localStorage.setItem('browser_user_id', browserUserId);
-            
-            currentUser = {
-                uid: browserUserId,
-                displayName: 'Browser User',
-                username: 'browseruser',
-                photoUrl: null,
-                languageCode: 'en'
-            };
-            
-            document.getElementById('user-display-name').textContent = currentUser.displayName;
-            document.getElementById('user-display-id').textContent = `ID: ${currentUser.uid}`;
-            document.getElementById('profile-name').textContent = currentUser.displayName;
-            document.getElementById('profile-username').textContent = `@${currentUser.username}`;
-            document.getElementById('profile-id').textContent = `ID: ${currentUser.uid}`;
-            document.getElementById('profile-user-id').value = currentUser.uid;
-            document.getElementById('profile-username-field').value = currentUser.username;
-            document.getElementById('profile-join-date').value = new Date().toLocaleDateString();
-            
-            updateLoadingScreen(70, "Loading User Data");
-            setTimeout(() => {
-                loadUserData(currentUser.uid);
-                setupRealTimeListeners(currentUser.uid);
-                updateLoadingScreen(100, "Ready");
-            }, 1000);
-        }
 
         // Initialize Admin Panel - ONLY IN BROWSER
         async function initializeAdminPanel() {
