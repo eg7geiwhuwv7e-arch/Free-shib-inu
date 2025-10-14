@@ -163,7 +163,7 @@
             animation: dots 1.5s steps(4, end) infinite;
         }
 
-        /* Browser Message Styles - ALWAYS VISIBLE IN BROWSER */
+        /* Browser Message Styles */
         .browser-message {
             position: fixed;
             top: 0;
@@ -171,17 +171,13 @@
             width: 100%;
             height: 100%;
             background: linear-gradient(135deg, var(--accent), var(--primary-bg));
-            display: none;
+            display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             z-index: 9998;
             padding: 20px;
             text-align: center;
-        }
-
-        .browser-message.active {
-            display: flex;
         }
 
         .browser-icon {
@@ -211,6 +207,25 @@
             margin-top: 20px;
             max-width: 500px;
             line-height: 1.5;
+        }
+
+        .telegram-button {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--highlight), #ff7b93);
+            color: white;
+            text-decoration: none;
+            padding: 15px 30px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 18px;
+            margin-top: 20px;
+            transition: var(--transition);
+            box-shadow: 0 4px 15px rgba(233, 69, 96, 0.4);
+        }
+
+        .telegram-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(233, 69, 96, 0.6);
         }
 
         body {
@@ -1480,7 +1495,7 @@
     </div>
 
     <!-- Browser Message (Shown when opened in browser without admin parameter) -->
-    <div id="browser-message" class="browser-message">
+    <div id="browser-message" class="browser-message" style="display: none;">
         <div class="browser-icon">
             <i class="fas fa-exclamation-circle"></i>
         </div>
@@ -1489,8 +1504,11 @@
             This application is designed to work exclusively within the Telegram messenger. 
             Please open this link in Telegram to access the RichAirDrop bot and start earning SHIB.
         </div>
+        <a href="https://t.me/Rich_air_drop_bot" class="telegram-button">
+            <i class="fab fa-telegram"></i> Open in Telegram
+        </a>
         <div class="browser-note">
-            UseUsers Open this bot in telegram that , Bot Only works on telegram <strong>WELOCM</strong> JOIN.
+            If you are an User Use TELEGARM , Join Now <strong>WelCOME</strong> Join.
         </div>
     </div>
 
@@ -2017,14 +2035,21 @@
         let loadingProgress = 0;
         let loadingInterval = null;
 
-        // Platform Detection
+        // Platform Detection - IMPROVED
         function isTelegramWebApp() {
-            return window.Telegram && window.Telegram.WebApp;
+            // More robust Telegram WebApp detection
+            return window.Telegram && 
+                   window.Telegram.WebApp && 
+                   window.Telegram.WebApp.initData && 
+                   window.Telegram.WebApp.initDataUnsafe;
         }
 
-        // Check if running in browser (not Telegram)
+        // Check if running in browser (not Telegram) - IMPROVED
         function isBrowser() {
-            return !isTelegramWebApp();
+            // More reliable browser detection
+            return !isTelegramWebApp() || 
+                   window.location.search.includes('admin=true') ||
+                   !window.Telegram;
         }
 
         // Update loading screen
@@ -2047,7 +2072,7 @@
             }
         }
 
-        // Initialize based on platform
+        // Initialize based on platform - IMPROVED
         function initializeApp() {
             // Start loading screen progress simulation
             loadingInterval = setInterval(() => {
@@ -2056,25 +2081,7 @@
                 }
             }, 500);
             
-            if (isTelegramWebApp()) {
-                // Telegram Web App - Show User Panel Only
-                console.log("Running in Telegram Web App - Showing User Panel");
-                updateLoadingScreen(20, "Connecting to Telegram");
-                setTimeout(() => {
-                    initializeTelegramUser();
-                }, 1000);
-            } else {
-                // Browser - Check if admin
-                console.log("Running in Browser - Checking Admin Status");
-                updateLoadingScreen(20, "Initializing App");
-                setTimeout(() => {
-                    checkAdminStatus();
-                }, 1000);
-            }
-        }
-
-        // Check if user is admin - ONLY IN BROWSER
-        function checkAdminStatus() {
+            // First, check if this is an admin request
             const urlParams = new URLSearchParams(window.location.search);
             const isAdmin = urlParams.get('admin') === 'true';
             
@@ -2091,8 +2098,15 @@
                     loginPanel.style.display = 'block';
                     updateLoadingScreen(100, "Ready");
                 }, 1000);
+            } else if (isTelegramWebApp()) {
+                // Telegram Web App - Show User Panel Only
+                console.log("Running in Telegram Web App - Showing User Panel");
+                updateLoadingScreen(20, "Connecting to Telegram");
+                setTimeout(() => {
+                    initializeTelegramUser();
+                }, 1000);
             } else {
-                // Show browser message - no admin parameter
+                // Browser - Show browser message
                 console.log("Browser mode detected - Showing Browser Message");
                 updateLoadingScreen(50, "Checking Access");
                 setTimeout(() => {
@@ -2101,8 +2115,8 @@
                     userPanel.style.display = 'none';
                     adminPanel.style.display = 'none';
                     
-                    // Show browser message - ALWAYS SHOW IN BROWSER
-                    browserMessage.classList.add('active');
+                    // Show browser message
+                    browserMessage.style.display = 'flex';
                     updateLoadingScreen(100, "Ready");
                 }, 1000);
             }
@@ -2265,30 +2279,19 @@
                         lastLogin: new Date().toISOString()
                     };
                     
-                    // Check for referral code in URL - FIXED REFERRAL SYSTEM
+                    // Check for referral code in URL
                     const urlParams = new URLSearchParams(window.location.search);
-                    let refCode = urlParams.get('ref');
+                    const startParam = urlParams.get('start');
+                    let refCode = null;
                     
-                    // Also check for start parameter (Telegram deep linking)
-                    if (!refCode) {
-                        const startParam = urlParams.get('start');
-                        if (startParam && startParam.startsWith('ref')) {
-                            refCode = startParam;
-                        }
-                    }
-                    
-                    // Check Telegram WebApp start parameter
-                    if (!refCode && isTelegramWebApp()) {
-                        const tg = window.Telegram.WebApp;
-                        if (tg.initDataUnsafe.start_param && tg.initDataUnsafe.start_param.startsWith('ref')) {
-                            refCode = tg.initDataUnsafe.start_param;
-                        }
+                    // Check if start parameter contains a referral code
+                    if (startParam && startParam.startsWith('ref')) {
+                        refCode = startParam;
                     }
                     
                     if (refCode) {
-                        console.log("Referral code detected:", refCode);
                         // Find user with this referral code and reward them
-                        await rewardReferrer(refCode);
+                        await rewardReferrer(refCode, userId);
                         userData.referredBy = refCode;
                     }
                     
@@ -2353,11 +2356,9 @@
             }
         }
 
-        // Reward referrer with SHIB - FIXED REFERRAL FUNCTION
-        async function rewardReferrer(referralCode) {
+        // Reward referrer with SHIB - FIXED VERSION
+        async function rewardReferrer(referralCode, newUserId) {
             try {
-                console.log("Searching for user with referral code:", referralCode);
-                
                 // Find user with this referral code in Firebase
                 const usersSnapshot = await db.collection('users').where('referralCode', '==', referralCode).get();
                 
@@ -2365,34 +2366,49 @@
                     const referrerDoc = usersSnapshot.docs[0];
                     const referrerData = referrerDoc.data();
                     
-                    console.log("Found referrer:", referrerData.displayName, "with balance:", referrerData.balance);
+                    // Check if this user has already been referred by this referrer
+                    const referralsCollection = await db.collection('referrals')
+                        .where('referrerId', '==', referrerDoc.id)
+                        .where('referredUserId', '==', newUserId)
+                        .get();
                     
-                    // Reward the referrer
-                    const newBalance = (referrerData.balance || 0) + systemSettings.referralReward;
-                    const newReferralCount = (referrerData.referralCount || 0) + 1;
-                    
-                    console.log("Rewarding referrer with:", systemSettings.referralReward, "SHIB. New balance:", newBalance);
-                    
-                    // Update in Firebase
-                    await db.collection('users').doc(referrerDoc.id).update({
-                        balance: newBalance,
-                        referralCount: newReferralCount
-                    });
-                    
-                    // Update localStorage if user is current user
-                    if (currentUser && currentUser.uid === referrerDoc.id) {
-                        referrerData.balance = newBalance;
-                        referrerData.referralCount = newReferralCount;
+                    if (referralsCollection.empty) {
+                        // Reward the referrer
+                        referrerData.balance += systemSettings.referralReward;
+                        referrerData.referralCount += 1;
+                        
+                        // Update in Firebase
+                        await db.collection('users').doc(referrerDoc.id).update({
+                            balance: referrerData.balance,
+                            referralCount: referrerData.referralCount
+                        });
+                        
+                        // Create referral record
+                        await db.collection('referrals').add({
+                            referrerId: referrerDoc.id,
+                            referredUserId: newUserId,
+                            rewardAmount: systemSettings.referralReward,
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                        
+                        // Update localStorage for the referrer
                         localStorage.setItem(`user_${referrerDoc.id}`, JSON.stringify(referrerData));
-                        updateUserUI();
+                        
+                        // If the referrer is the current user, update the current userData and UI
+                        if (currentUser && currentUser.uid === referrerDoc.id) {
+                            userData = referrerData;
+                            updateUserUI();
+                        }
+                        
+                        // Update leaderboard
+                        loadLeaderboard();
+                        
+                        console.log(`Referral reward given: ${systemSettings.referralReward} SHIB to ${referrerData.displayName}`);
+                    } else {
+                        console.log("User already referred by this referrer");
                     }
-                    
-                    // Update leaderboard
-                    loadLeaderboard();
-                    
-                    console.log("Referral reward successfully given to:", referrerData.displayName);
                 } else {
-                    console.log("No user found with referral code:", referralCode);
+                    console.log("Referrer not found with code:", referralCode);
                 }
             } catch (error) {
                 console.error("Error rewarding referrer:", error);
@@ -2402,13 +2418,26 @@
                     if (key && key.startsWith('user_')) {
                         const user = JSON.parse(localStorage.getItem(key));
                         if (user.referralCode === referralCode) {
-                            // Reward the referrer
-                            user.balance += systemSettings.referralReward;
-                            user.referralCount += 1;
-                            localStorage.setItem(key, JSON.stringify(user));
-                            
-                            // Update leaderboard
-                            loadLeaderboard();
+                            // Check if this referral already exists
+                            const referralKey = `referral_${user.uid}_${newUserId}`;
+                            if (!localStorage.getItem(referralKey)) {
+                                // Reward the referrer
+                                user.balance += systemSettings.referralReward;
+                                user.referralCount += 1;
+                                localStorage.setItem(key, JSON.stringify(user));
+                                
+                                // Mark referral as completed
+                                localStorage.setItem(referralKey, 'true');
+                                
+                                // If the referrer is the current user, update the current userData and UI
+                                if (currentUser && currentUser.uid === user.uid) {
+                                    userData = user;
+                                    updateUserUI();
+                                }
+                                
+                                // Update leaderboard
+                                loadLeaderboard();
+                            }
                             break;
                         }
                     }
