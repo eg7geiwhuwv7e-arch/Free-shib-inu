@@ -1508,7 +1508,7 @@
             <i class="fab fa-telegram"></i> Open in Telegram
         </a>
         <div class="browser-note">
-            If you are an User Use TELEGARM , Join Now <strong>WelCOME</strong> Join.
+            If you are an administrator, you can access the admin panel by adding <strong>?admin=true</strong> to the URL.
         </div>
     </div>
 
@@ -1804,13 +1804,6 @@
                     <div class="no-history">No pending withdrawals.</div>
                 </div>
             </div>
-
-            <div class="admin-card">
-                <h3>Withdrawal History</h3>
-                <div id="admin-withdrawal-history-container">
-                    <div class="no-history">No withdrawal history.</div>
-                </div>
-            </div>
         </div>
 
         <!-- Settings Section -->
@@ -2008,7 +2001,6 @@
         const tasksContainer = document.getElementById('tasks-container');
         const adminTasksContainer = document.getElementById('admin-tasks-container');
         const pendingWithdrawalsContainer = document.getElementById('pending-withdrawals-container');
-        const adminWithdrawalHistoryContainer = document.getElementById('admin-withdrawal-history-container');
         const withdrawalHistoryContainer = document.getElementById('withdrawal-history-container');
         const leaderboardContainer = document.getElementById('leaderboard-container');
         const addTaskForm = document.getElementById('add-task-form');
@@ -2625,13 +2617,7 @@
             updateLoadingScreen(70, "Loading Withdrawals");
             await loadPendingWithdrawals();
             
-            updateLoadingScreen(80, "Loading History");
-            await loadAdminWithdrawalHistory();
-            
-            updateLoadingScreen(90, "Loading Statistics");
-            await loadAdminStats();
-            
-            updateLoadingScreen(95, "Loading Users");
+            updateLoadingScreen(90, "Loading Users");
             await loadAllUsers();
             
             // Set up real-time listener for system settings in admin panel
@@ -2665,6 +2651,10 @@
                     // Load user search if balance management tab is clicked
                     if (tabName === 'balance') {
                         setupUserSearch();
+                    }
+                    // Load pending withdrawals if withdrawals tab is clicked
+                    if (tabName === 'withdrawals') {
+                        loadPendingWithdrawals();
                     }
                 });
             });
@@ -3047,7 +3037,7 @@
             });
         }
 
-        // Load Withdrawal History
+        // Load Withdrawal History - FIXED VERSION
         async function loadWithdrawalHistory() {
             try {
                 const withdrawalsSnapshot = await db.collection('withdrawals')
@@ -3077,7 +3067,19 @@
                                 <td>${withdrawal.date}</td>
                                 <td>${withdrawal.amount} SHIB</td>
                                 <td>${withdrawal.address.substring(0, 10)}...${withdrawal.address.substring(withdrawal.address.length - 6)}</td>
-                                <td>${withdrawal.status}</td>
+                                <td>
+                                    <span style="
+                                        padding: 4px 8px;
+                                        border-radius: 12px;
+                                        font-size: 12px;
+                                        font-weight: 600;
+                                        ${withdrawal.status === 'pending' ? 'background-color: rgba(255, 152, 0, 0.2); color: var(--warning);' : 
+                                          withdrawal.status === 'approved' ? 'background-color: rgba(76, 175, 80, 0.2); color: var(--success);' : 
+                                          'background-color: rgba(244, 67, 54, 0.2); color: var(--danger);'}
+                                    ">
+                                        ${withdrawal.status.toUpperCase()}
+                                    </span>
+                                </td>
                             </tr>
                         `;
                     });
@@ -3091,7 +3093,7 @@
             }
         }
 
-        // Load Pending Withdrawals for Admin
+        // Load Pending Withdrawals for Admin - FIXED VERSION
         async function loadPendingWithdrawals() {
             try {
                 const pendingWithdrawalsSnapshot = await db.collection('withdrawals')
@@ -3127,11 +3129,11 @@
                             <tr>
                                 <td>${userData.displayName || 'Unknown User'}</td>
                                 <td>${withdrawal.amount} SHIB</td>
-                                <td>${withdrawal.address.substring(0, 10)}...${withdrawal.address.substring(withdrawal.address.length - 6)}</td>
+                                <td>${withdrawal.address}</td>
                                 <td>${withdrawal.date}</td>
                                 <td>
-                                    <button class="admin-button approve" onclick="approveWithdrawal('${withdrawal.id}')">Approve</button>
-                                    <button class="admin-button reject" onclick="rejectWithdrawal('${withdrawal.id}')">Reject</button>
+                                    <button class="admin-button approve" onclick="approveWithdrawal('${withdrawal.id}', '${withdrawal.userId}', ${withdrawal.amount})">Approve</button>
+                                    <button class="admin-button reject" onclick="rejectWithdrawal('${withdrawal.id}', '${withdrawal.userId}', ${withdrawal.amount})">Reject</button>
                                 </td>
                             </tr>
                         `;
@@ -3144,55 +3146,6 @@
                 console.error("Error loading pending withdrawals:", error);
                 pendingWithdrawalsContainer.innerHTML = '<div class="no-history">No pending withdrawals.</div>';
                 document.getElementById('pending-withdrawals').textContent = '0';
-            }
-        }
-
-        // Load Admin Withdrawal History
-        async function loadAdminWithdrawalHistory() {
-            try {
-                const withdrawalsSnapshot = await db.collection('withdrawals')
-                    .orderBy('createdAt', 'desc')
-                    .limit(50)
-                    .get();
-                
-                const withdrawals = [];
-                withdrawalsSnapshot.forEach(doc => {
-                    const data = doc.data();
-                    withdrawals.push({
-                        id: doc.id,
-                        ...data,
-                        date: data.createdAt ? data.createdAt.toDate().toLocaleDateString() : 'Unknown'
-                    });
-                });
-                
-                if (withdrawals.length === 0) {
-                    adminWithdrawalHistoryContainer.innerHTML = '<div class="no-history">No withdrawal history.</div>';
-                } else {
-                    let tableHTML = '<table class="admin-table">';
-                    tableHTML += '<tr><th>User</th><th>Amount</th><th>Address</th><th>Status</th><th>Date</th></tr>';
-                    
-                    for (const withdrawal of withdrawals) {
-                        // Get user data
-                        const userDoc = await db.collection('users').doc(withdrawal.userId).get();
-                        const userData = userDoc.exists ? userDoc.data() : { displayName: 'Unknown User' };
-                        
-                        tableHTML += `
-                            <tr>
-                                <td>${userData.displayName || 'Unknown User'}</td>
-                                <td>${withdrawal.amount} SHIB</td>
-                                <td>${withdrawal.address.substring(0, 10)}...${withdrawal.address.substring(withdrawal.address.length - 6)}</td>
-                                <td>${withdrawal.status}</td>
-                                <td>${withdrawal.date}</td>
-                            </tr>
-                        `;
-                    }
-                    
-                    tableHTML += '</table>';
-                    adminWithdrawalHistoryContainer.innerHTML = tableHTML;
-                }
-            } catch (error) {
-                console.error("Error loading admin withdrawal history:", error);
-                adminWithdrawalHistoryContainer.innerHTML = '<div class="no-history">No withdrawal history.</div>';
             }
         }
 
@@ -3416,8 +3369,16 @@
             }
         }
 
-        // Withdraw SHIB
+        // Withdraw SHIB - FIXED VERSION
+        let isProcessingWithdrawal = false;
+        
         async function withdrawButtonClick() {
+            // Prevent multiple withdrawals
+            if (isProcessingWithdrawal) {
+                alert("Please wait, your previous withdrawal is being processed.");
+                return;
+            }
+            
             const amount = parseInt(document.getElementById('withdraw-amount').value);
             const address = document.getElementById('withdraw-address').value;
             
@@ -3427,7 +3388,7 @@
             }
             
             if (amount < systemSettings.minWithdrawal) {
-                alert(`You do not have enough SHIB to withdraw. Minimum withdrawal is ${systemSettings.minWithdrawal} SHIB.`);
+                alert(`Minimum withdrawal is ${systemSettings.minWithdrawal} SHIB.`);
                 return;
             }
             
@@ -3436,14 +3397,29 @@
                 return;
             }
             
-            // Create withdrawal request in Firebase
+            // Validate BEP20 address format (basic check)
+            if (!address.startsWith('0x') || address.length !== 42) {
+                alert('Please enter a valid BEP20 address (starts with 0x and 42 characters long).');
+                return;
+            }
+            
+            // Set processing flag
+            isProcessingWithdrawal = true;
+            
+            // Disable button to prevent multiple clicks
+            withdrawButton.disabled = true;
+            withdrawButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+            
             try {
+                // Create withdrawal request in Firebase
                 await db.collection('withdrawals').add({
                     userId: currentUser.uid,
                     amount: amount,
                     address: address,
                     status: 'pending',
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    userName: userData.displayName || 'Unknown',
+                    userUsername: userData.username || 'unknown'
                 });
                 
                 // Update user balance
@@ -3465,9 +3441,15 @@
                 
                 // Reload withdrawal history
                 loadWithdrawalHistory();
+                
             } catch (error) {
                 console.error("Error creating withdrawal:", error);
                 alert('Error processing withdrawal. Please try again.');
+            } finally {
+                // Re-enable button
+                isProcessingWithdrawal = false;
+                withdrawButton.disabled = false;
+                withdrawButton.innerHTML = '<i class="fas fa-sync-alt"></i> Withdraw SHIB';
             }
         }
 
@@ -3601,6 +3583,11 @@
                 // Show corresponding section
                 const sectionId = this.getAttribute('data-section');
                 document.getElementById(sectionId).classList.add('active');
+                
+                // Load withdrawal history when withdraw section is opened
+                if (sectionId === 'withdraw-section') {
+                    loadWithdrawalHistory();
+                }
             });
         });
 
@@ -3653,9 +3640,11 @@
             }
         }
 
-        async function approveWithdrawal(withdrawalId) {
+        // Approve Withdrawal - FIXED VERSION
+        async function approveWithdrawal(withdrawalId, userId, amount) {
             if (confirm('Approve this withdrawal?')) {
                 try {
+                    // Update withdrawal status to approved
                     await db.collection('withdrawals').doc(withdrawalId).update({
                         status: 'approved',
                         processedAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -3663,7 +3652,6 @@
                     
                     alert('Withdrawal approved successfully!');
                     loadPendingWithdrawals();
-                    loadAdminWithdrawalHistory();
                 } catch (error) {
                     console.error("Error approving withdrawal:", error);
                     alert('Error approving withdrawal. Please try again.');
@@ -3671,36 +3659,34 @@
             }
         }
 
-        async function rejectWithdrawal(withdrawalId) {
+        // Reject Withdrawal - FIXED VERSION
+        async function rejectWithdrawal(withdrawalId, userId, amount) {
             if (confirm('Reject this withdrawal?')) {
                 try {
-                    // Get withdrawal details to refund user
-                    const withdrawalDoc = await db.collection('withdrawals').doc(withdrawalId).get();
-                    const withdrawalData = withdrawalDoc.data();
-                    
-                    // Refund user
-                    const userDoc = await db.collection('users').doc(withdrawalData.userId).get();
-                    const userData = userDoc.data();
-                    
-                    await db.collection('users').doc(withdrawalData.userId).update({
-                        balance: userData.balance + withdrawalData.amount
-                    });
-                    
-                    // Update localStorage
-                    localStorage.setItem(`user_${withdrawalData.userId}`, JSON.stringify({
-                        ...userData,
-                        balance: userData.balance + withdrawalData.amount
-                    }));
-                    
-                    // Update withdrawal status
+                    // Update withdrawal status to rejected
                     await db.collection('withdrawals').doc(withdrawalId).update({
                         status: 'rejected',
                         processedAt: firebase.firestore.FieldValue.serverTimestamp()
                     });
                     
+                    // Refund user balance
+                    const userDoc = await db.collection('users').doc(userId).get();
+                    if (userDoc.exists) {
+                        const userData = userDoc.data();
+                        await db.collection('users').doc(userId).update({
+                            balance: (userData.balance || 0) + amount
+                        });
+                        
+                        // Update localStorage if this is the current user
+                        if (currentUser && currentUser.uid === userId) {
+                            userData.balance += amount;
+                            localStorage.setItem(`user_${userId}`, JSON.stringify(userData));
+                            updateUserUI();
+                        }
+                    }
+                    
                     alert('Withdrawal rejected and user refunded!');
                     loadPendingWithdrawals();
-                    loadAdminWithdrawalHistory();
                 } catch (error) {
                     console.error("Error rejecting withdrawal:", error);
                     alert('Error rejecting withdrawal. Please try again.');
