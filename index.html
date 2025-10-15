@@ -2019,6 +2019,8 @@
         let systemSettingsListener = null;
         let userDataListener = null;
         let tasksListener = null;
+        let withdrawalHistoryListener = null;
+        let pendingWithdrawalsListener = null;
 
         // Ad tracking
         let adRewardGiven = false;
@@ -2222,6 +2224,25 @@
                     }
                 }, (error) => {
                     console.error("Error listening to user data:", error);
+                });
+
+            // Withdrawal history listener
+            withdrawalHistoryListener = db.collection('withdrawals')
+                .where('userId', '==', userId)
+                .orderBy('createdAt', 'desc')
+                .onSnapshot((snapshot) => {
+                    const withdrawals = [];
+                    snapshot.forEach(doc => {
+                        const data = doc.data();
+                        withdrawals.push({
+                            id: doc.id,
+                            ...data,
+                            date: data.createdAt ? data.createdAt.toDate().toLocaleDateString() : 'Unknown'
+                        });
+                    });
+                    updateWithdrawalHistoryUI(withdrawals);
+                }, (error) => {
+                    console.error("Error listening to withdrawal history:", error);
                 });
         }
 
@@ -2603,6 +2624,12 @@
             }
             if (userDataListener) {
                 userDataListener();
+            }
+            if (withdrawalHistoryListener) {
+                withdrawalHistoryListener();
+            }
+            if (pendingWithdrawalsListener) {
+                pendingWithdrawalsListener();
             }
         });
 
@@ -3055,97 +3082,115 @@
                     });
                 });
                 
-                if (withdrawals.length === 0) {
-                    withdrawalHistoryContainer.innerHTML = '<div class="no-history">No withdrawal history yet.</div>';
-                } else {
-                    let tableHTML = '<table style="width: 100%; border-collapse: collapse;">';
-                    tableHTML += '<tr><th>Date</th><th>Amount</th><th>Address</th><th>Status</th></tr>';
-                    
-                    withdrawals.forEach(withdrawal => {
-                        tableHTML += `
-                            <tr>
-                                <td>${withdrawal.date}</td>
-                                <td>${withdrawal.amount} SHIB</td>
-                                <td>${withdrawal.address.substring(0, 10)}...${withdrawal.address.substring(withdrawal.address.length - 6)}</td>
-                                <td>
-                                    <span style="
-                                        padding: 4px 8px;
-                                        border-radius: 12px;
-                                        font-size: 12px;
-                                        font-weight: 600;
-                                        ${withdrawal.status === 'pending' ? 'background-color: rgba(255, 152, 0, 0.2); color: var(--warning);' : 
-                                          withdrawal.status === 'approved' ? 'background-color: rgba(76, 175, 80, 0.2); color: var(--success);' : 
-                                          'background-color: rgba(244, 67, 54, 0.2); color: var(--danger);'}
-                                    ">
-                                        ${withdrawal.status.toUpperCase()}
-                                    </span>
-                                </td>
-                            </tr>
-                        `;
-                    });
-                    
-                    tableHTML += '</table>';
-                    withdrawalHistoryContainer.innerHTML = tableHTML;
-                }
+                updateWithdrawalHistoryUI(withdrawals);
             } catch (error) {
                 console.error("Error loading withdrawal history:", error);
+                updateWithdrawalHistoryUI([]);
+            }
+        }
+
+        // Update Withdrawal History UI
+        function updateWithdrawalHistoryUI(withdrawals) {
+            if (withdrawals.length === 0) {
                 withdrawalHistoryContainer.innerHTML = '<div class="no-history">No withdrawal history yet.</div>';
+            } else {
+                let tableHTML = '<table style="width: 100%; border-collapse: collapse;">';
+                tableHTML += '<tr><th>Date</th><th>Amount</th><th>Address</th><th>Status</th></tr>';
+                
+                withdrawals.forEach(withdrawal => {
+                    tableHTML += `
+                        <tr>
+                            <td>${withdrawal.date}</td>
+                            <td>${withdrawal.amount} SHIB</td>
+                            <td>${withdrawal.address.substring(0, 10)}...${withdrawal.address.substring(withdrawal.address.length - 6)}</td>
+                            <td>
+                                <span style="
+                                    padding: 4px 8px;
+                                    border-radius: 12px;
+                                    font-size: 12px;
+                                    font-weight: 600;
+                                    ${withdrawal.status === 'pending' ? 'background-color: rgba(255, 152, 0, 0.2); color: var(--warning);' : 
+                                      withdrawal.status === 'approved' ? 'background-color: rgba(76, 175, 80, 0.2); color: var(--success);' : 
+                                      'background-color: rgba(244, 67, 54, 0.2); color: var(--danger);'}
+                                ">
+                                    ${withdrawal.status.toUpperCase()}
+                                </span>
+                            </td>
+                        </tr>
+                    `;
+                });
+                
+                tableHTML += '</table>';
+                withdrawalHistoryContainer.innerHTML = tableHTML;
             }
         }
 
         // Load Pending Withdrawals for Admin - FIXED VERSION
         async function loadPendingWithdrawals() {
             try {
-                const pendingWithdrawalsSnapshot = await db.collection('withdrawals')
+                // Set up real-time listener for pending withdrawals
+                if (pendingWithdrawalsListener) {
+                    pendingWithdrawalsListener();
+                }
+                
+                pendingWithdrawalsListener = db.collection('withdrawals')
                     .where('status', '==', 'pending')
                     .orderBy('createdAt', 'desc')
-                    .get();
-                
-                const pendingWithdrawals = [];
-                pendingWithdrawalsSnapshot.forEach(doc => {
-                    const data = doc.data();
-                    pendingWithdrawals.push({
-                        id: doc.id,
-                        ...data,
-                        date: data.createdAt ? data.createdAt.toDate().toLocaleDateString() : 'Unknown'
-                    });
-                });
-                
-                if (pendingWithdrawals.length === 0) {
-                    pendingWithdrawalsContainer.innerHTML = '<div class="no-history">No pending withdrawals.</div>';
-                    document.getElementById('pending-withdrawals').textContent = '0';
-                } else {
-                    document.getElementById('pending-withdrawals').textContent = pendingWithdrawals.length;
-                    
-                    let tableHTML = '<table class="admin-table">';
-                    tableHTML += '<tr><th>User</th><th>Amount</th><th>Address</th><th>Date</th><th>Action</th></tr>';
-                    
-                    for (const withdrawal of pendingWithdrawals) {
-                        // Get user data
-                        const userDoc = await db.collection('users').doc(withdrawal.userId).get();
-                        const userData = userDoc.exists ? userDoc.data() : { displayName: 'Unknown User' };
+                    .onSnapshot(async (snapshot) => {
+                        const pendingWithdrawals = [];
                         
-                        tableHTML += `
-                            <tr>
-                                <td>${userData.displayName || 'Unknown User'}</td>
-                                <td>${withdrawal.amount} SHIB</td>
-                                <td>${withdrawal.address}</td>
-                                <td>${withdrawal.date}</td>
-                                <td>
-                                    <button class="admin-button approve" onclick="approveWithdrawal('${withdrawal.id}', '${withdrawal.userId}', ${withdrawal.amount})">Approve</button>
-                                    <button class="admin-button reject" onclick="rejectWithdrawal('${withdrawal.id}', '${withdrawal.userId}', ${withdrawal.amount})">Reject</button>
-                                </td>
-                            </tr>
-                        `;
-                    }
-                    
-                    tableHTML += '</table>';
-                    pendingWithdrawalsContainer.innerHTML = tableHTML;
-                }
+                        for (const doc of snapshot.docs) {
+                            const data = doc.data();
+                            // Get user data
+                            const userDoc = await db.collection('users').doc(data.userId).get();
+                            const userData = userDoc.exists ? userDoc.data() : { displayName: 'Unknown User' };
+                            
+                            pendingWithdrawals.push({
+                                id: doc.id,
+                                ...data,
+                                date: data.createdAt ? data.createdAt.toDate().toLocaleDateString() : 'Unknown',
+                                userDisplayName: userData.displayName || 'Unknown User'
+                            });
+                        }
+                        
+                        updatePendingWithdrawalsUI(pendingWithdrawals);
+                    }, (error) => {
+                        console.error("Error listening to pending withdrawals:", error);
+                    });
             } catch (error) {
                 console.error("Error loading pending withdrawals:", error);
+                updatePendingWithdrawalsUI([]);
+            }
+        }
+
+        // Update Pending Withdrawals UI
+        function updatePendingWithdrawalsUI(pendingWithdrawals) {
+            if (pendingWithdrawals.length === 0) {
                 pendingWithdrawalsContainer.innerHTML = '<div class="no-history">No pending withdrawals.</div>';
                 document.getElementById('pending-withdrawals').textContent = '0';
+            } else {
+                document.getElementById('pending-withdrawals').textContent = pendingWithdrawals.length;
+                
+                let tableHTML = '<table class="admin-table">';
+                tableHTML += '<tr><th>User</th><th>Amount</th><th>Address</th><th>Date</th><th>Action</th></tr>';
+                
+                pendingWithdrawals.forEach(withdrawal => {
+                    tableHTML += `
+                        <tr>
+                            <td>${withdrawal.userDisplayName}</td>
+                            <td>${withdrawal.amount} SHIB</td>
+                            <td>${withdrawal.address}</td>
+                            <td>${withdrawal.date}</td>
+                            <td>
+                                <button class="admin-button approve" onclick="approveWithdrawal('${withdrawal.id}', '${withdrawal.userId}', ${withdrawal.amount})">Approve</button>
+                                <button class="admin-button reject" onclick="rejectWithdrawal('${withdrawal.id}', '${withdrawal.userId}', ${withdrawal.amount})">Reject</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+                
+                tableHTML += '</table>';
+                pendingWithdrawalsContainer.innerHTML = tableHTML;
             }
         }
 
@@ -3439,8 +3484,7 @@
                 document.getElementById('withdraw-amount').value = '';
                 document.getElementById('withdraw-address').value = '';
                 
-                // Reload withdrawal history
-                loadWithdrawalHistory();
+                // Withdrawal history will update automatically via real-time listener
                 
             } catch (error) {
                 console.error("Error creating withdrawal:", error);
@@ -3583,11 +3627,6 @@
                 // Show corresponding section
                 const sectionId = this.getAttribute('data-section');
                 document.getElementById(sectionId).classList.add('active');
-                
-                // Load withdrawal history when withdraw section is opened
-                if (sectionId === 'withdraw-section') {
-                    loadWithdrawalHistory();
-                }
             });
         });
 
@@ -3651,7 +3690,7 @@
                     });
                     
                     alert('Withdrawal approved successfully!');
-                    loadPendingWithdrawals();
+                    // Pending withdrawals will update automatically via real-time listener
                 } catch (error) {
                     console.error("Error approving withdrawal:", error);
                     alert('Error approving withdrawal. Please try again.');
@@ -3686,7 +3725,7 @@
                     }
                     
                     alert('Withdrawal rejected and user refunded!');
-                    loadPendingWithdrawals();
+                    // Pending withdrawals will update automatically via real-time listener
                 } catch (error) {
                     console.error("Error rejecting withdrawal:", error);
                     alert('Error rejecting withdrawal. Please try again.');
