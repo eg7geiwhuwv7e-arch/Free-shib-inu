@@ -2226,7 +2226,7 @@
                     console.error("Error listening to user data:", error);
                 });
 
-            // Withdrawal history listener
+            // Withdrawal history listener - FIXED
             withdrawalHistoryListener = db.collection('withdrawals')
                 .where('userId', '==', userId)
                 .orderBy('createdAt', 'desc')
@@ -2317,7 +2317,6 @@
                 
                 updateUserUI();
                 await loadTasks();
-                await loadWithdrawalHistory();
                 await loadLeaderboard();
             } catch (error) {
                 console.error("Error loading user data:", error);
@@ -2339,7 +2338,6 @@
                     
                     updateUserUI();
                     loadTasks();
-                    loadWithdrawalHistory();
                     loadLeaderboard();
                 } else {
                     // Initialize new user with 0 balance
@@ -2363,7 +2361,6 @@
                     localStorage.setItem(`user_${userId}`, JSON.stringify(userData));
                     updateUserUI();
                     loadTasks();
-                    loadWithdrawalHistory();
                     loadLeaderboard();
                 }
             }
@@ -3064,32 +3061,7 @@
             });
         }
 
-        // Load Withdrawal History - FIXED VERSION
-        async function loadWithdrawalHistory() {
-            try {
-                const withdrawalsSnapshot = await db.collection('withdrawals')
-                    .where('userId', '==', currentUser.uid)
-                    .orderBy('createdAt', 'desc')
-                    .get();
-                
-                const withdrawals = [];
-                withdrawalsSnapshot.forEach(doc => {
-                    const data = doc.data();
-                    withdrawals.push({
-                        id: doc.id,
-                        ...data,
-                        date: data.createdAt ? data.createdAt.toDate().toLocaleDateString() : 'Unknown'
-                    });
-                });
-                
-                updateWithdrawalHistoryUI(withdrawals);
-            } catch (error) {
-                console.error("Error loading withdrawal history:", error);
-                updateWithdrawalHistoryUI([]);
-            }
-        }
-
-        // Update Withdrawal History UI
+        // Update Withdrawal History UI - FIXED VERSION
         function updateWithdrawalHistoryUI(withdrawals) {
             if (withdrawals.length === 0) {
                 withdrawalHistoryContainer.innerHTML = '<div class="no-history">No withdrawal history yet.</div>';
@@ -3125,7 +3097,7 @@
             }
         }
 
-        // Load Pending Withdrawals for Admin - FIXED VERSION
+        // Load Pending Withdrawals for Admin - COMPLETELY FIXED VERSION
         async function loadPendingWithdrawals() {
             try {
                 // Set up real-time listener for pending withdrawals
@@ -3167,9 +3139,13 @@
         function updatePendingWithdrawalsUI(pendingWithdrawals) {
             if (pendingWithdrawals.length === 0) {
                 pendingWithdrawalsContainer.innerHTML = '<div class="no-history">No pending withdrawals.</div>';
-                document.getElementById('pending-withdrawals').textContent = '0';
+                if (document.getElementById('pending-withdrawals')) {
+                    document.getElementById('pending-withdrawals').textContent = '0';
+                }
             } else {
-                document.getElementById('pending-withdrawals').textContent = pendingWithdrawals.length;
+                if (document.getElementById('pending-withdrawals')) {
+                    document.getElementById('pending-withdrawals').textContent = pendingWithdrawals.length;
+                }
                 
                 let tableHTML = '<table class="admin-table">';
                 tableHTML += '<tr><th>User</th><th>Amount</th><th>Address</th><th>Date</th><th>Action</th></tr>';
@@ -3414,7 +3390,7 @@
             }
         }
 
-        // Withdraw SHIB - FIXED VERSION
+        // Withdraw SHIB - COMPLETELY FIXED VERSION
         let isProcessingWithdrawal = false;
         
         async function withdrawButtonClick() {
@@ -3456,8 +3432,8 @@
             withdrawButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
             
             try {
-                // Create withdrawal request in Firebase
-                await db.collection('withdrawals').add({
+                // Create withdrawal request in Firebase - FIXED
+                const withdrawalData = {
                     userId: currentUser.uid,
                     amount: amount,
                     address: address,
@@ -3465,7 +3441,11 @@
                     createdAt: firebase.firestore.FieldValue.serverTimestamp(),
                     userName: userData.displayName || 'Unknown',
                     userUsername: userData.username || 'unknown'
-                });
+                };
+                
+                console.log("Creating withdrawal:", withdrawalData);
+                
+                await db.collection('withdrawals').add(withdrawalData);
                 
                 // Update user balance
                 userData.balance -= amount;
@@ -3484,7 +3464,7 @@
                 document.getElementById('withdraw-amount').value = '';
                 document.getElementById('withdraw-address').value = '';
                 
-                // Withdrawal history will update automatically via real-time listener
+                // The real-time listeners will automatically update both user history and admin panel
                 
             } catch (error) {
                 console.error("Error creating withdrawal:", error);
