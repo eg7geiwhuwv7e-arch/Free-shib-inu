@@ -446,7 +446,7 @@
                     </div>
                     <div>
                         <h3 class="font-semibold text-white">Click for Reward</h3>
-                        <p class="text-xs text-gray-400">Rewarded Popup - 2 SHIB</p>
+                        <p class="text-xs text-gray-400">Rewarded Popup - 6 SHIB</p>
                     </div>
                 </div>
                 <button class="btn-outline-accent font-bold px-4 py-1.5 rounded-lg text-sm" onclick="claimReward('popup')" ${tasksLeft <= 0 ? 'disabled' : ''}>
@@ -460,7 +460,7 @@
                     </div>
                     <div>
                         <h3 class="font-semibold text-white">Watch a Video</h3>
-                        <p class="text-xs text-gray-400">In-App Interstitial - 20 SHIB</p>
+                        <p class="text-xs text-gray-400">In-App Interstitial - 5 SHIB</p>
                     </div>
                 </div>
                 <button class="btn-outline-accent font-bold px-4 py-1.5 rounded-lg text-sm" onclick="claimReward('inApp')" ${tasksLeft <= 0 ? 'disabled' : ''}>
@@ -710,8 +710,8 @@
             // Give rewards based on task type
             let reward = 0;
             if (taskType === 'interstitial') reward = 15;
-            else if (taskType === 'popup') reward = 2;
-            else if (taskType === 'inApp') reward = 20;
+            else if (taskType === 'popup') reward = 6;
+            else if (taskType === 'inApp') reward = 5;
             
             if (reward > 0) { 
                 updateBalance(reward, true); 
